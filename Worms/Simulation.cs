@@ -9,8 +9,8 @@ using Worms.Utility;
 
 namespace Worms {
     internal sealed class Simulation {
-        private const int FOOD_LIFETIME = 10;
         private const int FOOD_DECAY_RATE = 1;
+        internal const int FOOD_LIFETIME = 10;
 
         private readonly Dictionary<Vector2Int, int> foods = new();
         private readonly List<Worm> worms = new();
@@ -58,6 +58,7 @@ namespace Worms {
         }
 
         private void Step() {
+            RemoveDecayedFood();
             GenerateFood();
             UpdateWorms();
             UpdateFood();
@@ -127,13 +128,16 @@ namespace Worms {
             foods[foodGenerator.NextFoodPosition(IsFood)] = FOOD_LIFETIME;
 
         private void UpdateFood() {
-            var toRemove = new HashSet<Vector2Int>();
             foreach (var position in foods.Keys) {
                 foods[position] -= FOOD_DECAY_RATE;
-                if (foods[position] <= 0) {
-                    toRemove.Add(position);
-                }
             }
+        }
+
+        private void RemoveDecayedFood() {
+            var toRemove =
+                from item in foods
+                where item.Value <= 0
+                select item.Key;
 
             foreach (var position in toRemove) {
                 foods.Remove(position);
