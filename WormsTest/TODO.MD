@@ -22,8 +22,8 @@ Worm reproduction
  * [ ] Obstructed by food
 
 Food generation
- * [ ] On top of a worm
- * [ ] Worm can eat twice 
+ * [x] On top of a worm
+ * [x] Worm can eat twice 
  * [x] Food decays 
 
 Behaviour
