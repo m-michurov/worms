@@ -32,6 +32,11 @@ namespace Worms.Utility {
             Vector2Int v2
         ) => new(v1.X + v2.X, v1.Y + v2.Y);
 
+        public static Vector2Int operator *(
+            Vector2Int v1,
+            int i
+        ) => new(v1.X * i, v1.Y * i);
+
         public static int Distance(
             Vector2Int v1,
             Vector2Int v2
