@@ -16,10 +16,10 @@ Worm movement
  * [x] Food
 
 Worm reproduction 
- * [ ] Successful
- * [ ] Not enough energy
- * [ ] Obstructed by worms
- * [ ] Obstructed by food
+ * [x] Successful
+ * [x] Not enough energy
+ * [x] Obstructed by worms
+ * [x] Obstructed by food
 
 Food generation
  * [x] On top of a worm
