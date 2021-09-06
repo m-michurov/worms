@@ -6,7 +6,7 @@
 
 ### Food generation
 
- * [x] Generated names are unique within reasonable quantities
+ * [x] Generated food positions are unique within reasonable quantities
 
 ### Simulation
 
