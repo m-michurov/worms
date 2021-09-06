@@ -8,7 +8,7 @@ using Worms.StateObserver;
 using Worms.Utility;
 
 namespace Worms {
-    internal sealed class Simulation {
+    internal sealed class Simulation : ISimulationState {
         private const int FOOD_DECAY_RATE = 1;
         internal const int FOOD_LIFETIME = 10;
 
@@ -20,7 +20,7 @@ namespace Worms {
         private readonly IBehaviour behaviour;
         private readonly IStateObserver stateObserver;
 
-        public Simulation(
+        internal Simulation(
             INameGenerator nameGenerator_,
             IFoodGenerator foodGenerator_,
             IBehaviour behaviour_,
@@ -28,13 +28,12 @@ namespace Worms {
         ) => (nameGenerator, foodGenerator, behaviour, stateObserver) =
             (nameGenerator_, foodGenerator_, behaviour_, stateObserver_);
 
-        internal ICollection<Vector2Int> FoodPositions => foods.Keys;
+        public ICollection<Vector2Int> FoodPositions => foods.Keys;
+        public IEnumerable<string> Foods => from food in foods.Keys select food.ToString();
+        public IEnumerable<string> Worms => from worm in worms select worm.ToString();
 
-        internal IEnumerable<string> Foods => from food in foods.Keys select food.ToString();
-        internal IEnumerable<string> Worms => from worm in worms select worm.ToString();
-
-        internal bool IsFood(Vector2Int position) => foods.ContainsKey(position);
-        internal bool IsWorm(Vector2Int position) => worms.Any(worm => position == worm.Position);
+        public bool IsFood(Vector2Int position) => foods.ContainsKey(position);
+        public bool IsWorm(Vector2Int position) => worms.Any(worm => position == worm.Position);
 
         internal Worm? TrySpawnWorm(Vector2Int position) {
             if (IsWorm(position)) {
@@ -67,7 +66,7 @@ namespace Worms {
         private void UpdateWorms() {
             for (var i = 0; i < worms.Count;) {
                 var worm = worms[i];
-                
+
                 CheckFood(worm);
                 var action = behaviour.NextAction(this, worm);
                 if (TryExecuteAction(worm, action)) {
