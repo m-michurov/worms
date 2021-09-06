@@ -3,7 +3,7 @@ using Worms.Utility;
 
 namespace Worms.Food {
     internal sealed class FoodGenerator : IFoodGenerator {
-        internal const double MEAN = 0;
+        private const double MEAN = 0;
         internal const double STANDARD_DEVIATION = 5;
 
         private readonly Random random = new();
