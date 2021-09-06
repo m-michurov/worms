@@ -2,7 +2,7 @@ using System;
 using Worms.Food;
 using Worms.Utility;
 
-namespace WormsTest.Food {
+namespace WormsTest.TestImplementations {
     internal sealed class DelegateFoodGenerator : IFoodGenerator {
         private readonly Func<Predicate<Vector2Int>, Vector2Int> f;
         public DelegateFoodGenerator(Func<Predicate<Vector2Int>, Vector2Int> f_) => f = f_;
