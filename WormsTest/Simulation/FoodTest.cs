@@ -3,9 +3,8 @@ using Worms;
 using Worms.Food;
 using Worms.Names;
 using Worms.Utility;
-using WormsTest.Behaviour;
-using WormsTest.Food;
 using WormsTest.StateObserver;
+using WormsTest.TestImplementations;
 
 namespace WormsTest.Simulation {
     public sealed class FoodTest {
@@ -30,7 +29,7 @@ namespace WormsTest.Simulation {
 
             const int steps = 100;
             const int maxPossibleFood = Worms.Simulation.FOOD_LIFETIME;
-            
+
             for (var i = 1; i <= steps; i += 1) {
                 s.Run(1);
 
@@ -61,9 +60,12 @@ namespace WormsTest.Simulation {
 
             var worm = s.TrySpawnWorm(Vector2Int.Zero)!;
             const int steps = Worm.INITIAL_ENERGY / 2;
-            
+
             s.Run(steps);
-            Assert.AreEqual(Worm.INITIAL_ENERGY - steps + Worm.ENERGY_PER_FOOD, worm.Energy);
+            Assert.AreEqual(
+                Worm.INITIAL_ENERGY - steps * Worm.ENERGY_LOSS_PER_STEP + Worm.ENERGY_PER_FOOD,
+                worm.Energy
+            );
         }
 
         [TestCase]
@@ -85,7 +87,10 @@ namespace WormsTest.Simulation {
             var worm = s.TrySpawnWorm(Vector2Int.Zero)!;
             Assert.AreEqual(Worm.INITIAL_ENERGY, worm.Energy);
             s.Run(1);
-            Assert.AreEqual(Worm.INITIAL_ENERGY - 1 + 2 * Worm.ENERGY_PER_FOOD, worm.Energy);
+            Assert.AreEqual(
+                Worm.INITIAL_ENERGY - Worm.ENERGY_LOSS_PER_STEP + 2 * Worm.ENERGY_PER_FOOD,
+                worm.Energy
+            );
         }
     }
 }
