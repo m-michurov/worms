@@ -27,4 +27,4 @@ Food generation
  * [x] Food decays 
 
 Behaviour
- * [ ] Seeking food
+ * [x] Seeking food
