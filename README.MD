@@ -1,6 +1,6 @@
 ## Worms
 
-**Задача 2** курса [Введение в C# и платформу .Net](https://sites.google.com/view/fitnsudotnet#h.nt7847ls3u36)
+**Задача 3** курса [Введение в C# и платформу .Net](https://sites.google.com/view/fitnsudotnet#h.nt7847ls3u36)
 
 ## Build
 
@@ -9,12 +9,10 @@ Use 'Build Solution' button in Rider or something
 ## Run
 
 ```bash
-Worms\bin\Release\net5.0\Worms.exe <OutputFile> [--visualize] [--help] [--version]
+Worms\bin\Release\net5.0\Worms.exe <OutputFile> [--help] [--version]
 ```
 
 ```bash
-  --visualize            (Default: false) Visualize simulation in CLI
-
   --help                 Display this help screen.
 
   --version              Display version information.
