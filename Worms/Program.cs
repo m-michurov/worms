@@ -2,6 +2,8 @@
 using System.IO;
 using System.Runtime.CompilerServices;
 using CommandLine;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Worms.Behaviour;
 using Worms.Food;
 using Worms.Names;
@@ -12,42 +14,52 @@ using Worms.Utility;
 
 namespace Worms {
     internal static class Program {
-        private const int STEPS = 100;
-        private const int DELAY_MS = 150;
         private const string DEFAULT_OUTPUT_FILE = "sim.out";
 
         private static void Main(string[] args) =>
             Parser.Default
                 .ParseArguments<Options>(args)
-                .WithParsed(Run);
-        
-        private static void Run(Options options) {
+                .WithParsed(options => Run(args, options));
+
+        private static void Run(string[] args, Options options) {
             try {
                 using var outFile = new FileStream(options.OutputFile, FileMode.Create);
                 using var outWriter = new StreamWriter(outFile);
-
-                var snapshotCollector = null as SnapshotCollector;
-                var observer = new TextStateWriter(outWriter) as IStateObserver;
-
-                if (options.Visualize) {
-                    snapshotCollector = new SnapshotCollector();
-                    observer = new MultiObserver(observer, snapshotCollector);
-                }
-
-                var s = new Simulation(
-                    new NameGenerator(),
-                    new FoodGenerator(),
-                    new HedonisticBehaviour(),
-                    observer
-                );
-                _ = s.TrySpawnWorm(Vector2Int.Zero);
-                s.Run(STEPS);
-
-                snapshotCollector?.Show(TimeSpan.FromMilliseconds(DELAY_MS));
+                
+                CreateHostBuilder(args, outWriter).Build().Run();
             } catch (IOException e) {
                 Console.Error.WriteLine(e.Message);
             }
         }
+
+        private static IHostBuilder CreateHostBuilder(
+            string[] args,
+            TextWriter outputWriter
+        ) =>
+            Host
+                .CreateDefaultBuilder(args)
+                .ConfigureServices(
+                    (
+                        unused,
+                        services
+                    ) => {
+                        services.AddHostedService(
+                            provider => {
+                                var s = new Simulation(
+                                    provider.GetService<INameGenerator>()!,
+                                    provider.GetService<IFoodGenerator>()!,
+                                    provider.GetService<IBehaviour>()!,
+                                    provider.GetService<IStateObserver>()!
+                                );
+                                _ = s.TrySpawnWorm(Vector2Int.Zero)!;
+                                return s;
+                            });
+                        services.AddScoped<INameGenerator, NameGenerator>();
+                        services.AddScoped<IFoodGenerator, FoodGenerator>();
+                        services.AddScoped<IBehaviour, HedonisticBehaviour>();
+                        services.AddScoped<IStateObserver, TextStateWriter>(_ => new TextStateWriter(outputWriter));
+                    }
+                );
 
         // ReSharper disable once ClassNeverInstantiated.Local
         private sealed class Options {
@@ -60,10 +72,6 @@ namespace Worms {
             )]
             // ReSharper disable once PropertyCanBeMadeInitOnly.Local
             public string OutputFile { get; set; } = DEFAULT_OUTPUT_FILE;
-
-            [Option(Default = false, HelpText = "Visualize simulation in CLI")]
-            // ReSharper disable once UnusedAutoPropertyAccessor.Local
-            public bool Visualize { get; set; }
         }
     }
 }
