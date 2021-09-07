@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 using Worms.Behaviour;
 using Worms.Food;
 using Worms.Names;
@@ -8,7 +11,9 @@ using Worms.StateObserver;
 using Worms.Utility;
 
 namespace Worms {
-    internal sealed class Simulation : ISimulationState {
+    internal sealed class Simulation : ISimulationState, IHostedService {
+        private const int STEPS = 100;
+        
         private const int FOOD_DECAY_RATE = 1;
         internal const int FOOD_LIFETIME = 10;
 
@@ -142,5 +147,10 @@ namespace Worms {
                 foods.Remove(position);
             }
         }
+
+        public Task StartAsync(CancellationToken cancellationToken) =>
+            Task.Run(() => Run(STEPS), cancellationToken);
+
+        public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
     }
 }
