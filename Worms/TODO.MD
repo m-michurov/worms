@@ -1,10 +1,10 @@
 ## Things to do
 
 ### Command line arguments
- * [ ] Find a suitable argument parser library and use it to 
+ * [x] Find a suitable argument parser library and use it to 
 parse arguments
- * [ ] Optional argument: \<output file name\>
- * [ ] Option: --visualize
+ * [x] Optional argument: \<output file name\>
+ * [x] Option: --visualize
  * [ ] Option: --hosted\* (incompatible with --visualize(?))
 
 ### \*Simulation as a hosted service
