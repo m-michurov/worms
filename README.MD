@@ -4,11 +4,23 @@
 
 ## Build
 
-*Work in progress*
+Use 'Build Solution' button in Rider or something
 
 ## Run
 
-*Work in progress*
+```bash
+Worms\bin\Release\net5.0\Worms.exe <OutputFile> [--visualize] [--help] [--version]
+```
+
+```bash
+  --visualize            (Default: false) Visualize simulation in CLI
+
+  --help                 Display this help screen.
+
+  --version              Display version information.
+
+  OutputFile (pos. 0)    (Default: sim.out) File to write simulation results to
+```
 
 ## TODO
 
