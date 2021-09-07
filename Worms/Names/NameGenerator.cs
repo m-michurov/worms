@@ -24,7 +24,7 @@ namespace Worms.Names {
 
         private readonly Random random = new();
 
-        internal NameGenerator() {
+        public NameGenerator() {
             foreach (var name in baseNames) {
                 numbers[name] = 1;
             }
