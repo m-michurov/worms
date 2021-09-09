@@ -22,7 +22,7 @@ namespace Worms.StateObserver {
             snapshot.Append('+');
             snapshot.Append('\n');
 
-            for (var y = MIN_Y; y <= MAX_Y; y += 1) {
+            for (var y = MAX_Y; y >= MIN_Y; y -= 1) {
                 snapshot.Append('|');
                 for (var x = MIN_X; x <= MAX_X; x += 1) {
                     var position = new Vector2Int(x, y);
