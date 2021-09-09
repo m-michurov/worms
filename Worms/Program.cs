@@ -3,7 +3,6 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using CommandLine;
 using Worms.Behaviour;
-using Worms.Food;
 using Worms.Names;
 using Worms.StateObserver;
 using Worms.Utility;
@@ -36,8 +35,7 @@ namespace Worms {
 
                 var s = new Simulation(
                     new NameGenerator(),
-                    new FoodGenerator(),
-                    new HedonisticBehaviour(),
+                    new RotateClockwise(),
                     observer
                 );
                 _ = s.TrySpawnWorm(Vector2Int.Zero);
