@@ -2,20 +2,20 @@ using System;
 
 namespace Worms.Utility {
     internal readonly struct Vector2Int {
-        internal readonly int X;
-        internal readonly int Y;
+        private readonly int x;
+        private readonly int y;
 
         internal Vector2Int(
             int x,
             int y
-        ) => (X, Y) = (x, y);
+        ) => (this.x, this.y) = (x, y);
 
-        public override string ToString() => $"({X}, {Y})";
+        public override string ToString() => $"({x}, {y})";
 
         public override bool Equals(object? obj) =>
-            obj is Vector2Int v && (X, Y) == (v.X, v.Y);
+            obj is Vector2Int v && (x, y) == (v.x, v.y);
 
-        public override int GetHashCode() => HashCode.Combine(X, Y);
+        public override int GetHashCode() => HashCode.Combine(x, y);
 
         public static bool operator ==(
             Vector2Int v1,
@@ -30,24 +30,14 @@ namespace Worms.Utility {
         public static Vector2Int operator +(
             Vector2Int v1,
             Vector2Int v2
-        ) => new(v1.X + v2.X, v1.Y + v2.Y);
+        ) => new(v1.x + v2.x, v1.y + v2.y);
 
         public static Vector2Int operator *(
             Vector2Int v1,
             int i
-        ) => new(v1.X * i, v1.Y * i);
+        ) => new(v1.x * i, v1.y * i);
 
-        public static int Distance(
-            Vector2Int v1,
-            Vector2Int v2
-        ) => Math.Abs(v1.X - v2.X) + Math.Abs(v1.Y - v2.Y);
-
-        public void Deconstruct(
-            out int x,
-            out int y
-        ) => (x, y) = (X, Y);
-
-        public static Vector2Int operator -(Vector2Int v) => new(-v.X, -v.Y);
+        public static Vector2Int operator -(Vector2Int v) => new(-v.x, -v.y);
 
         internal static readonly Vector2Int Zero = new();
         internal static readonly Vector2Int UnitX = new(1, 0);

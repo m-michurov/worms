@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Worms.Utility {
     internal static class RomanNumericsConverter {
-        internal const long TOO_BIG = 4000;
+        private const long TOO_BIG = 4000;
 
         private static readonly string[] romanNumerals = {
             "M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"

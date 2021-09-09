@@ -26,12 +26,8 @@ namespace Worms.StateObserver {
                 snapshot.Append('|');
                 for (var x = MIN_X; x <= MAX_X; x += 1) {
                     var position = new Vector2Int(x, y);
-                    if (s.IsWorm(position)) {
-                        snapshot.Append('s');
-                    } else {
-                        snapshot.Append(' ');
-                    }
-
+                    
+                    snapshot.Append(s.IsWorm(position) ? 's' : ' ');
                     snapshot.Append(' ');
                 }
 

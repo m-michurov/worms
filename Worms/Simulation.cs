@@ -53,7 +53,7 @@ namespace Worms {
             for (var i = 0; i < worms.Count; i += 1) {
                 var worm = worms[i];
 
-                var action = behaviour.NextAction(this, worm);
+                var action = behaviour.NextAction();
                 _ = TryExecuteAction(worm, action);
             }
         }
