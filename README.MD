@@ -1,6 +1,6 @@
 ## Worms
 
-**Задача 2** курса [Введение в C# и платформу .Net](https://sites.google.com/view/fitnsudotnet#h.nt7847ls3u36)
+**Задача 1** курса [Введение в C# и платформу .Net](https://sites.google.com/view/fitnsudotnet#h.nt7847ls3u36)
 
 ## Build
 
