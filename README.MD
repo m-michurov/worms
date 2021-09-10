@@ -20,10 +20,3 @@ Worms\bin\Release\net5.0\Worms.exe <OutputFile> [--visualize] [--help] [--versio
   --version              Display version information.
 
   OutputFile (pos. 0)    (Default: sim.out) File to write simulation results to
-```
-
-## TODO
-
-[Main project](Worms/TODO.MD)
-
-[Tests](WormsTest/TODO.MD)
