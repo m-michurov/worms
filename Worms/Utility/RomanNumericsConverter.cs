@@ -1,4 +1,3 @@
-using System;
 using System.Text;
 
 namespace Worms.Utility {
@@ -12,12 +11,6 @@ namespace Worms.Utility {
         private static readonly long[] numerals = {
             1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1
         };
-
-        static RomanNumericsConverter() {
-            if (romanNumerals.Length != numerals.Length) {
-                throw new ApplicationException("numeral array's lengths do not match");
-            }
-        }
 
         /// <summary>
         ///     Convert a number to a roman numerals representation
