@@ -1,7 +1,7 @@
 using System;
 
 namespace Worms.Utility {
-    internal readonly struct Vector2Int {
+    public readonly struct Vector2Int {
         internal readonly int X;
         internal readonly int Y;
 

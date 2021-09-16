@@ -1,5 +1,5 @@
 namespace Worms.Utility {
-    internal readonly struct Direction {
+    public readonly struct Direction {
         private readonly Vector2Int offset;
 
         private Direction(Vector2Int offset) => this.offset = offset;
