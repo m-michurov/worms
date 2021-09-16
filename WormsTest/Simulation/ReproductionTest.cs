@@ -1,78 +1,67 @@
+using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
+using FluentAssertions;
 using Worms;
 using Worms.Names;
 using Worms.Utility;
-using WormsTest.StateObserver;
 using WormsTest.TestImplementations;
+using Xunit;
 
 namespace WormsTest.Simulation {
-    public sealed class ReproductionTest {
-        [TestCase]
-        public void TestReproduction() {
-            static void TestForDirection(Direction direction) {
-                var s = new Worms.Simulation(
-                    new NameGenerator(),
-                    new DelegateFoodGenerator(_ => new Vector2Int(int.MinValue, int.MaxValue)),
-                    new DelegateBehaviour(
-                        (
-                            _,
-                            _
-                        ) => new Action.Reproduce(direction)
-                    ),
-                    new DiscardObserver()
-                );
+    public sealed class ReproductionTests {
+        public static readonly List<object[]> Directions = new() {
+            new object[] {Direction.Down},
+            new object[] {Direction.Up},
+            new object[] {Direction.Left},
+            new object[] {Direction.Right}
+        };
 
-                var worm = s.TrySpawnWorm(Vector2Int.Zero)!;
-                worm.Eat();
+        [Theory]
+        [MemberData(nameof(Directions))]
+        public void Worm_can_reproduce_when_unobstructed_and_has_enough_energy(Direction direction) {
+            const int initialEnergy = Worm.INITIAL_ENERGY + Worm.ENERGY_PER_FOOD;
 
-                const int initialEnergy = Worm.INITIAL_ENERGY + Worm.ENERGY_PER_FOOD;
-                Assert.AreEqual(initialEnergy, worm.Energy);
-                Assert.AreEqual(1, s.Worms.Count());
-
-                s.Run(1);
-
-                Assert.AreEqual(
-                    initialEnergy - Worm.ENERGY_LOSS_PER_STEP - Worm.REPRODUCTION_ENERGY_COST,
-                    worm.Energy
-                );
-                Assert.AreEqual(2, s.Worms.Count());
-            }
-
-            Assert.DoesNotThrow(() => TestForDirection(Direction.Right));
-            Assert.DoesNotThrow(() => TestForDirection(Direction.Left));
-            Assert.DoesNotThrow(() => TestForDirection(Direction.Up));
-            Assert.DoesNotThrow(() => TestForDirection(Direction.Down));
-        }
-
-        [TestCase]
-        public void TestReproduceNotEnoughEnergy() {
-            var s = new Worms.Simulation(
+            // Arrange
+            var sut = new Worms.Simulation(
                 new NameGenerator(),
                 new DelegateFoodGenerator(_ => new Vector2Int(int.MinValue, int.MaxValue)),
-                new DelegateBehaviour(
-                    (
-                        _,
-                        _
-                    ) => new Action.Reproduce(Direction.Right)
-                ),
+                new DelegateBehaviour(() => new Action.Reproduce(direction)),
                 new DiscardObserver()
             );
-            var worm = s.TrySpawnWorm(Vector2Int.Zero)!;
-            const int initialWormsCount = 1;
+            var worm = sut.TrySpawnWorm(Vector2Int.Zero)!;
+            worm.Eat();
 
-            Assert.AreEqual(initialWormsCount, s.Worms.Count());
-            Assert.AreEqual(Worm.INITIAL_ENERGY, worm.Energy);
+            // Act
+            sut.Run(1);
 
-            s.Run(1);
-
-            Assert.AreEqual(initialWormsCount, s.Worms.Count());
-            Assert.AreEqual(Worm.INITIAL_ENERGY - Worm.ENERGY_LOSS_PER_STEP, worm.Energy);
+            // Assert
+            worm.Energy.Should().Be(initialEnergy - Worm.ENERGY_LOSS_PER_STEP - Worm.REPRODUCTION_ENERGY_COST);
+            sut.Worms.Count().Should().Be(2);
         }
 
-        [TestCase]
-        public void TestReproduceObstructedByWorms() {
-            var s = new Worms.Simulation(
+        [Fact]
+        public void Worm_cannot_reproduce_when_not_enough_energy() {
+            // Arrange
+            var sut = new Worms.Simulation(
+                new NameGenerator(),
+                new DelegateFoodGenerator(_ => new Vector2Int(int.MinValue, int.MaxValue)),
+                new DelegateBehaviour(() => new Action.Reproduce(Direction.Right)),
+                new DiscardObserver()
+            );
+            var worm = sut.TrySpawnWorm(Vector2Int.Zero)!;
+
+            // Act
+            sut.Run(1);
+
+            // Assert
+            sut.Worms.Count().Should().Be(1);
+            worm.Energy.Should().Be(Worm.INITIAL_ENERGY - Worm.ENERGY_LOSS_PER_STEP);
+        }
+
+        [Fact]
+        public void Worm_cannot_reproduce_when_blocked_by_another_worm() {
+            // Arrange
+            var sut = new Worms.Simulation(
                 new NameGenerator(),
                 new DelegateFoodGenerator(_ => new Vector2Int(int.MinValue, int.MaxValue)),
                 new DelegateBehaviour(
@@ -89,56 +78,38 @@ namespace WormsTest.Simulation {
                 ),
                 new DiscardObserver()
             );
-            var worm = s.TrySpawnWorm(Vector2Int.Zero)!;
+            var worm = sut.TrySpawnWorm(Vector2Int.Zero)!;
             worm.Eat();
-
             var initialEnergy = worm.Energy;
-            // Worm has enough energy to reproduce
-            Assert.IsTrue(initialEnergy > Worm.REPRODUCTION_ENERGY_COST);
-            _ = s.TrySpawnWorm(Vector2Int.UnitX);
+            _ = sut.TrySpawnWorm(Vector2Int.UnitX);
 
-            const int initialWormsCount = 2;
+            // Act
+            sut.Run(1);
 
-            Assert.AreEqual(initialWormsCount, s.Worms.Count());
-
-            s.Run(1);
-
-            // No new worms have been created
-            Assert.AreEqual(initialWormsCount, s.Worms.Count());
-            // Reproduction attempt costs no energy 
-            Assert.AreEqual(initialEnergy - Worm.ENERGY_LOSS_PER_STEP, worm.Energy);
+            // Assert
+            sut.Worms.Count().Should().Be(2);
+            worm.Energy.Should().Be(initialEnergy - Worm.ENERGY_LOSS_PER_STEP);
         }
 
-        [TestCase]
-        public void TestReproduceObstructedByFood() {
-            var s = new Worms.Simulation(
+        [Fact]
+        public void Worm_cannot_reproduce_when_blocked_by_food() {
+            // Arrange
+            var sut = new Worms.Simulation(
                 new NameGenerator(),
                 new DelegateFoodGenerator(_ => Vector2Int.UnitX),
-                new DelegateBehaviour(
-                    (
-                        _,
-                        _
-                    ) => new Action.Reproduce(Direction.Right)
-                ),
+                new DelegateBehaviour(() => new Action.Reproduce(Direction.Right)),
                 new DiscardObserver()
             );
-            var worm = s.TrySpawnWorm(Vector2Int.Zero)!;
+            var worm = sut.TrySpawnWorm(Vector2Int.Zero)!;
             worm.Eat();
-
             var initialEnergy = worm.Energy;
-            // Worm has enough energy to reproduce
-            Assert.IsTrue(initialEnergy > Worm.REPRODUCTION_ENERGY_COST);
+            
+            // Act
+            sut.Run(1);
 
-            const int initialWormsCount = 1;
-
-            Assert.AreEqual(initialWormsCount, s.Worms.Count());
-
-            s.Run(1);
-
-            // No new worms have been created
-            Assert.AreEqual(initialWormsCount, s.Worms.Count());
-            // Reproduction attempt costs no energy 
-            Assert.AreEqual(initialEnergy - Worm.ENERGY_LOSS_PER_STEP, worm.Energy);
+            // Assert
+            sut.Worms.Count().Should().Be(1);
+            worm.Energy.Should().Be(initialEnergy - Worm.ENERGY_LOSS_PER_STEP);
         }
     }
 }
