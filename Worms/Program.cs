@@ -19,25 +19,23 @@ namespace Worms {
         private static void Main(string[] args) =>
             Parser.Default
                 .ParseArguments<Options>(args)
-                .WithParsed(options => Run(args, options));
+                .WithParsed(Run);
 
-        private static void Run(string[] args, Options options) {
+        private static void Run(Options options) {
             try {
                 using var outFile = new FileStream(options.OutputFile, FileMode.Create);
                 using var outWriter = new StreamWriter(outFile);
-                
-                CreateHostBuilder(args, outWriter).Build().Run();
+
+                using var host = CreateHostBuilder(outWriter).Build();
+                host.Run();
             } catch (IOException e) {
                 Console.Error.WriteLine(e.Message);
             }
         }
 
-        private static IHostBuilder CreateHostBuilder(
-            string[] args,
-            TextWriter outputWriter
-        ) =>
+        private static IHostBuilder CreateHostBuilder(TextWriter outputWriter) =>
             Host
-                .CreateDefaultBuilder(args)
+                .CreateDefaultBuilder()
                 .ConfigureServices(
                     (
                         unused,
@@ -53,7 +51,8 @@ namespace Worms {
                                 );
                                 _ = s.TrySpawnWorm(Vector2Int.Zero)!;
                                 return s;
-                            });
+                            }
+                        );
                         services.AddScoped<INameGenerator, NameGenerator>();
                         services.AddScoped<IFoodGenerator, FoodGenerator>();
                         services.AddScoped<IBehaviour, HedonisticBehaviour>();
