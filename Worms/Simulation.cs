@@ -11,14 +11,12 @@ using Worms.StateObserver;
 using Worms.Utility;
 
 namespace Worms {
-    internal sealed class Simulation : BackgroundService, ISimulationState {
+    internal sealed class Simulation : IHostedService, ISimulationState {
         private const int STEPS = 100;
-        
+
         private const int FOOD_DECAY_RATE = 1;
         internal const int FOOD_LIFETIME = 10;
-
-        private readonly object runLock = new();
-
+        
         private readonly Dictionary<Vector2Int, int> foods = new();
         private readonly List<Worm> worms = new();
 
@@ -53,15 +51,13 @@ namespace Worms {
         }
 
         internal void Run(int steps) {
-            lock (runLock) {
-                if (steps <= 0) {
-                    throw new ArgumentOutOfRangeException(nameof(steps));
-                }
+            if (steps <= 0) {
+                throw new ArgumentOutOfRangeException(nameof(steps));
+            }
 
-                for (var i = 0; i < steps; i += 1) {
-                    Step();
-                    stateObserver.StateChanged(this);
-                }
+            for (var i = 0; i < steps; i += 1) {
+                Step();
+                stateObserver.StateChanged(this);
             }
         }
 
@@ -152,7 +148,9 @@ namespace Worms {
             }
         }
 
-        protected override Task ExecuteAsync(CancellationToken stoppingToken) =>
-            Task.Run(() => Run(STEPS), stoppingToken);
+        public Task StartAsync(CancellationToken cancellationToken) =>
+            Task.Run(() => Run(STEPS), cancellationToken);
+
+        public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
     }
 }
