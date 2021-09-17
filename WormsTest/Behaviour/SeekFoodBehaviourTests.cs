@@ -8,7 +8,7 @@ using WormsTest.TestImplementations;
 using Xunit;
 
 namespace WormsTest.Behaviour {
-    public sealed class SeekFoodTests {
+    public sealed class SeekFoodBehaviourTests {
         /// <summary>
         /// Given a worm, let `shortestDistance` = distance between the
         /// worm and closest food position.
