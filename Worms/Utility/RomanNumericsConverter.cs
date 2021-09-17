@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 
 namespace Worms.Utility {
@@ -20,8 +21,11 @@ namespace Worms.Utility {
         ///     Roman numerals representation or base 10 representation if the number is too big (>= <see cref="TOO_BIG" />)
         /// </returns>
         internal static string Convert(long number) {
-            if (number >= TOO_BIG) {
-                return number.ToString();
+            switch (number) {
+                case < 0:
+                    throw new ArgumentOutOfRangeException(nameof(number));
+                case >= TOO_BIG:
+                    return number.ToString();
             }
 
             var result = new StringBuilder("");
