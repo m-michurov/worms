@@ -38,20 +38,16 @@ namespace Worms {
                 .CreateDefaultBuilder()
                 .ConfigureServices(
                     (
-                        unused,
+                        _,
                         services
                     ) => {
                         services.AddHostedService(
-                            provider => {
-                                var s = new Simulation(
-                                    provider.GetService<INameGenerator>()!,
-                                    provider.GetService<IFoodGenerator>()!,
-                                    provider.GetService<IBehaviour>()!,
-                                    provider.GetService<IStateObserver>()!
-                                );
-                                _ = s.TrySpawnWorm(Vector2Int.Zero)!;
-                                return s;
-                            }
+                            provider => new Simulation(
+                                provider.GetService<INameGenerator>()!,
+                                provider.GetService<IFoodGenerator>()!,
+                                provider.GetService<IBehaviour>()!,
+                                provider.GetService<IStateObserver>()!
+                            ).Chain(it => it.TrySpawnWorm(Vector2Int.Zero))
                         );
                         services.AddScoped<INameGenerator, NameGenerator>();
                         services.AddScoped<IFoodGenerator, FoodGenerator>();
