@@ -8,7 +8,6 @@ using Worms.Behaviour;
 using Worms.Food;
 using Worms.Names;
 using Worms.StateObserver;
-using Worms.Utility;
 
 [assembly: InternalsVisibleTo("WormsTest")]
 
@@ -41,18 +40,12 @@ namespace Worms {
                         _,
                         services
                     ) => {
-                        services.AddHostedService(
-                            provider => new Simulation(
-                                provider.GetService<INameGenerator>()!,
-                                provider.GetService<IFoodGenerator>()!,
-                                provider.GetService<IBehaviour>()!,
-                                provider.GetService<IStateObserver>()!
-                            ).Chain(it => it.TrySpawnWorm(Vector2Int.Zero))
-                        );
-                        services.AddScoped<INameGenerator, NameGenerator>();
-                        services.AddScoped<IFoodGenerator, FoodGenerator>();
-                        services.AddScoped<IBehaviour, HedonisticBehaviour>();
-                        services.AddScoped<IStateObserver, TextStateWriter>(_ => new TextStateWriter(outputWriter));
+                        services.AddHostedService<HostedSimulation>();
+                        
+                        services.AddTransient<INameGenerator, NameGenerator>();
+                        services.AddTransient<IFoodGenerator, FoodGenerator>();
+                        services.AddTransient<IBehaviour, HedonisticBehaviour>();
+                        services.AddTransient<IStateObserver, TextStateWriter>(_ => new TextStateWriter(outputWriter));
                     }
                 );
 
