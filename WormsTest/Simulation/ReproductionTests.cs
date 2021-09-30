@@ -92,7 +92,7 @@ namespace WormsTest.Simulation {
         }
 
         [Fact]
-        public void Worm_cannot_reproduce_when_blocked_by_food() {
+        public void Worm_can_reproduce_when_blocked_by_food() {
             // Arrange
             var sut = new Worms.Simulation(
                 new NameGenerator(),
@@ -108,8 +108,8 @@ namespace WormsTest.Simulation {
             sut.Run(1);
 
             // Assert
-            sut.Worms.Count().Should().Be(1);
-            worm.Energy.Should().Be(initialEnergy - Worm.ENERGY_LOSS_PER_STEP);
+            sut.Worms.Count().Should().BeGreaterThan(1);
+            worm.Energy.Should().Be(initialEnergy - Worm.ENERGY_LOSS_PER_STEP - Worm.REPRODUCTION_ENERGY_COST);
         }
     }
 }
