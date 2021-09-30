@@ -1,7 +1,7 @@
 using Worms.Utility;
 
 namespace Worms {
-    internal sealed class Worm {
+    public sealed class Worm {
         internal const int INITIAL_ENERGY = 10;
         internal const int ENERGY_LOSS_PER_STEP = 1;
         internal const int ENERGY_PER_FOOD = 10;
