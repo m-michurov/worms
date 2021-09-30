@@ -97,8 +97,7 @@ namespace Worms {
                     return true;
                 case Action.Reproduce reproduce:
                     var targetPosition = worm.Position + reproduce.Direction;
-                    if (IsFood(targetPosition)
-                        || IsWorm(targetPosition)
+                    if (IsWorm(targetPosition)
                         || worm.Energy <= Worm.REPRODUCTION_ENERGY_COST) {
                         return false;
                     }
