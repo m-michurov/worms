@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Worms.Utility;
 
 namespace Worms {
-    internal interface ISimulationState {
+    public interface ISimulationState {
         ICollection<Vector2Int> FoodPositions { get; }
 
         IEnumerable<string> Foods { get; }
