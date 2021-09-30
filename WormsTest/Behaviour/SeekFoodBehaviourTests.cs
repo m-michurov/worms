@@ -1,68 +1,80 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using Worms;
 using Worms.Behaviour;
-using Worms.Names;
 using Worms.Utility;
-using WormsTest.TestImplementations;
 using Xunit;
+using Action = Worms.Action;
 
 namespace WormsTest.Behaviour {
     public sealed class SeekFoodBehaviourTests {
-        /// <summary>
-        /// Given a worm, let `shortestDistance` = distance between the
-        /// worm and closest food position.
-        /// Test that worm eats within `shortestDistance` steps,
-        /// which means the worm took the shortest path to the food closest food.
-        /// </summary>
-        [Fact]
-        public void Worm_follows_shortest_path_to_closest_food() {
+        public static readonly List<object[]> Data = new() {
+            new object[] {
+                new Worm("", Vector2Int.Zero),
+                new SimulationStub(new []{Vector2Int.UnitX * 2, Vector2Int.UnitX * -3}),
+                Direction.Right
+            },
+            new object[] {
+                new Worm("", Vector2Int.Zero),
+                new SimulationStub(new []{Vector2Int.UnitY * 2, Vector2Int.UnitY * -3}),
+                Direction.Up
+            },
+            new object[] {
+                new Worm("", Vector2Int.Zero),
+                new SimulationStub(new []{Vector2Int.UnitX * -2, Vector2Int.UnitX * 3}),
+                Direction.Left
+            },
+            new object[] {
+                new Worm("", Vector2Int.Zero),
+                new SimulationStub(new []{Vector2Int.UnitY * -2, Vector2Int.UnitY * 3}),
+                Direction.Down
+            }
+        };
+
+        [Theory]
+        [MemberData(nameof(Data))]
+        public void SeekFood_behaviour_chooses_direction_towards_closest_food(
+            Worm worm,
+            ISimulationState simulationState,
+            Direction expectedDirection
+        ) {
             // Arrange
-            var sut = CreateTestSimulation();
-            var worm = sut.TrySpawnWorm(Vector2Int.Zero)!;
-            var shortestDistance =
-                sut.FoodPositions
-                    .Select(food => Vector2Int.Distance(food, worm.Position))
-                    .Prepend(int.MaxValue)
-                    .Min();
+            var sut = new SeekFood();
 
             // Act
-            sut.Run(shortestDistance);
+            var action = sut.NextAction(simulationState, worm);
 
             // Assert
-            var expectedEnergy =
-                Worm.INITIAL_ENERGY
-                - Worm.ENERGY_LOSS_PER_STEP * shortestDistance
-                + Worm.ENERGY_PER_FOOD;
-
-            worm.Energy.Should().Be(expectedEnergy);
+            action.Should().Match<Action.Move>(move => (Vector2Int) move.Direction == expectedDirection);
         }
 
-        private static Worms.Simulation CreateTestSimulation() {
-            var foods = new Vector2Int[] {
-                new(3, 2),
-                new(-2, 1),
-                new(2, -3),
-                new(-1, -3)
-            };
-            var foodIndex = 0;
-            var s = new Worms.Simulation(
-                new NameGenerator(),
-                new DelegateFoodGenerator(
-                    _ => {
-                        // Food position is never repeated
-                        var pos = foods[foodIndex % foods.Length] * (1 + foodIndex / foods.Length);
-                        foodIndex += 1;
-                        return pos;
-                    }
-                ),
-                new SeekFood(),
-                new DiscardObserver()
-            );
+        [Fact]
+        public void SeekFood_behaviour_chooses_to_stand_still_when_reached_food() {
+            // Arrange
+            var sut = new SeekFood();
+            var worm = new Worm("", Vector2Int.Zero);
+            var simulationState = new SimulationStub(new[] {Vector2Int.Zero});
 
-            s.Run(foods.Length);
+            // Act
+            var action = sut.NextAction(simulationState, worm);
 
-            return s;
+            // Assert
+            action.Should().BeOfType<Action.Nothing>();
+        }
+
+        private sealed class SimulationStub : ISimulationState {
+            private readonly IEnumerable<Vector2Int> foods;
+
+            internal SimulationStub(IEnumerable<Vector2Int> foods_) => foods = foods_;
+
+            public ICollection<Vector2Int> FoodPositions => foods.ToList();
+            public IEnumerable<string> Foods => throw new NotImplementedException();
+            public IEnumerable<string> Worms => throw new NotImplementedException();
+            public bool IsFood(Vector2Int position) => throw new NotImplementedException();
+
+            public bool IsWorm(Vector2Int position) => throw new NotImplementedException();
         }
     }
 }
