@@ -70,11 +70,11 @@ namespace WormsTest.Behaviour {
             internal SimulationStub(IEnumerable<Vector2Int> foods_) => foods = foods_;
 
             public ICollection<Vector2Int> FoodPositions => foods.ToList();
-            public IEnumerable<string> Foods => throw new NotImplementedException();
-            public IEnumerable<string> Worms => throw new NotImplementedException();
-            public bool IsFood(Vector2Int position) => throw new NotImplementedException();
+            public IEnumerable<string> Foods => Array.Empty<string>();
+            public IEnumerable<string> Worms => Array.Empty<string>();
+            public bool IsFood(Vector2Int position) => false;
 
-            public bool IsWorm(Vector2Int position) => throw new NotImplementedException();
+            public bool IsWorm(Vector2Int position) => false;
         }
     }
 }
