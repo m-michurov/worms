@@ -22,7 +22,7 @@ namespace WormsTest.Simulation {
             // Arrange
             var sut = new Worms.Simulation(
                 new NameGenerator(),
-                new FoodGenerator(),
+                new RandomFoodGenerator(),
                 new DelegateBehaviour(() => new Action.Nothing()),
                 new DiscardObserver()
             );
