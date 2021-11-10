@@ -6,21 +6,21 @@ using Worms.Utility;
 using Xunit;
 
 namespace WormsTest.Food {
-    public sealed class FoodGeneratorTests {
+    public sealed class RandomFoodGeneratorTests {
         // 68-95-99.7 rule
         // About 99.7 percent lie within three standard deviations
         // (μ ± 3σ), thus attempting to generate more than `EXPECTED_COUNT`
         // points (which is (6σ) squared) will result in dramatic
         // increase in generation time
         private const int EXPECTED_COUNT = 
-            (int) (36 * FoodGenerator.STANDARD_DEVIATION * FoodGenerator.STANDARD_DEVIATION);
+            (int) (36 * RandomFoodGenerator.STANDARD_DEVIATION * RandomFoodGenerator.STANDARD_DEVIATION);
 
         [Fact]
         public void Generated_positions_are_unique() {
             // Arrange
             var generated = new HashSet<Vector2Int>();
             var isOccupied = (Predicate<Vector2Int>) (it => generated.Contains(it));
-            var sut = new FoodGenerator();
+            var sut = new RandomFoodGenerator();
 
             // Act
             for (var i = 0; i < EXPECTED_COUNT; i += 1) {
