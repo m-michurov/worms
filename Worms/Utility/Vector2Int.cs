@@ -37,7 +37,7 @@ namespace Worms.Utility {
             int i
         ) => new(v1.X * i, v1.Y * i);
 
-        public static int Distance(
+        internal static int Distance(
             Vector2Int v1,
             Vector2Int v2
         ) => Math.Abs(v1.X - v2.X) + Math.Abs(v1.Y - v2.Y);
