@@ -9,7 +9,7 @@ using Worms.Utility;
 
 namespace Worms {
     internal sealed class Simulation : ISimulationState {
-        private const int FOOD_DECAY_RATE = 1;
+        internal const int FOOD_DECAY_RATE = 1;
         internal const int FOOD_LIFETIME = 10;
         
         private readonly Dictionary<Vector2Int, int> foods = new();
