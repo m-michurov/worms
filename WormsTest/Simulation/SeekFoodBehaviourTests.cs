@@ -10,10 +10,10 @@ using Xunit;
 namespace WormsTest.Simulation {
     public sealed class SeekFoodBehaviourTests {
         /// <summary>
-        /// Given a worm, let `shortestDistance` = distance between the
-        /// worm and closest food position.
-        /// Test that worm eats within `shortestDistance` steps,
-        /// which means the worm took the shortest path to the food closest food.
+        ///     Given a worm, let `shortestDistance` = distance between the
+        ///     worm and closest food position.
+        ///     Test that worm eats within `shortestDistance` steps,
+        ///     which means the worm took the shortest path to the food closest food.
         /// </summary>
         [Fact]
         public void Worm_follows_shortest_path_to_closest_food() {

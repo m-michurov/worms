@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Xunit;
 using FluentAssertions;
 using Worms.Names;
+using Xunit;
 
 namespace WormsTest.Names {
     public sealed class NameGeneratorTests {

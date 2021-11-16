@@ -11,14 +11,14 @@ namespace Worms {
     internal sealed class Simulation : ISimulationState {
         internal const int FOOD_DECAY_RATE = 1;
         internal const int FOOD_LIFETIME = 10;
-        
+        private readonly IBehaviour behaviour;
+        private readonly IFoodGenerator foodGenerator;
+
         private readonly Dictionary<Vector2Int, int> foods = new();
-        private readonly List<Worm> worms = new();
 
         private readonly INameGenerator nameGenerator;
-        private readonly IFoodGenerator foodGenerator;
-        private readonly IBehaviour behaviour;
         private readonly IStateObserver stateObserver;
+        private readonly List<Worm> worms = new();
 
         internal Simulation(
             INameGenerator nameGenerator_,

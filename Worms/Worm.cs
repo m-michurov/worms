@@ -8,14 +8,15 @@ namespace Worms {
         internal const int REPRODUCTION_ENERGY_COST = 10;
 
         private readonly string name;
-        internal Vector2Int Position { get; private set; }
-        internal int Energy { get; private set; } = INITIAL_ENERGY;
-        internal bool IsDead => Energy <= 0;
 
         internal Worm(
             string name,
             Vector2Int position
         ) => (this.name, Position) = (name, position);
+
+        internal Vector2Int Position { get; private set; }
+        internal int Energy { get; private set; } = INITIAL_ENERGY;
+        internal bool IsDead => Energy <= 0;
 
         internal void Move(Direction direction) => Position += direction;
 
@@ -33,7 +34,7 @@ namespace Worms {
 
         public override string ToString() => $"{name}-{Energy} {Position}";
 
-        public override bool Equals(object? obj) => 
+        public override bool Equals(object? obj) =>
             obj is Worm other && other.name == name;
 
         public override int GetHashCode() => name.GetHashCode();

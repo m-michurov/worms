@@ -4,15 +4,15 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
 namespace Worms.Database {
-    internal sealed class WorldBehaviorsRepository {
-        private readonly WorldBehaviorContext context;
+    internal sealed class WorldBehaviorsRepository : IWorldBehaviorsRepository {
+        private readonly MainContext context;
 
-        public WorldBehaviorsRepository(WorldBehaviorContext context_) => context = context_;
+        public WorldBehaviorsRepository(MainContext context_) => context = context_;
 
         private IEnumerable<WorldBehavior> WorldBehaviors =>
             context.WorldBehaviors!.Include(behaviour => behaviour.FoodPositions);
 
-        internal WorldBehavior? GetByName(string name) {
+        public WorldBehavior? GetByName(string name) {
             var behaviours =
                 from behaviour in WorldBehaviors
                 where name == behaviour.Name
@@ -24,7 +24,7 @@ namespace Worms.Database {
             }
         }
 
-        internal void Add(WorldBehavior worldBehavior) {
+        public void Add(WorldBehavior worldBehavior) {
             context.Add(worldBehavior);
             context.SaveChanges();
         }

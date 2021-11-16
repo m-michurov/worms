@@ -50,7 +50,7 @@ namespace Worms.StateObserver {
 
         internal void Show(TimeSpan stepDelay) {
             Console.Clear();
-            
+
             for (var i = 1; i <= snapshots.Count; i += 1) {
                 var snapshot = snapshots[i - 1];
                 Console.SetCursorPosition(0, 0);

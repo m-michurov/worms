@@ -12,7 +12,7 @@ namespace WormsTest.Food {
         // (μ ± 3σ), thus attempting to generate more than `EXPECTED_COUNT`
         // points (which is (6σ) squared) will result in dramatic
         // increase in generation time
-        private const int EXPECTED_COUNT = 
+        private const int EXPECTED_COUNT =
             (int) (36 * RandomFoodGenerator.STANDARD_DEVIATION * RandomFoodGenerator.STANDARD_DEVIATION);
 
         [Fact]
@@ -26,7 +26,7 @@ namespace WormsTest.Food {
             for (var i = 0; i < EXPECTED_COUNT; i += 1) {
                 generated.Add(sut.NextFoodPosition(isOccupied));
             }
-            
+
             // Assert
             generated.Count.Should().Be(EXPECTED_COUNT);
         }

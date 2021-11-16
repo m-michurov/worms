@@ -9,10 +9,10 @@ using Xunit;
 namespace WormsTest.Simulation {
     public sealed class FoodTests {
         /// <summary>
-        /// For the first `Worms.Simulation.FOOD_LIFETIME` steps food
-        /// quantity should increase by 1, but after that for each added
-        /// food one of already existing ones rots, keeping total food
-        /// quantity at `Worms.Simulation.FOOD_LIFETIME`
+        ///     For the first `Worms.Simulation.FOOD_LIFETIME` steps food
+        ///     quantity should increase by 1, but after that for each added
+        ///     food one of already existing ones rots, keeping total food
+        ///     quantity at `Worms.Simulation.FOOD_LIFETIME`
         /// </summary>
         [Fact]
         public void Food_decays_over_time() {
@@ -26,7 +26,7 @@ namespace WormsTest.Simulation {
                 new DelegateBehaviour(() => new Action.Nothing()),
                 new DiscardObserver()
             );
-            
+
             for (var steps = 1; steps <= maxPossibleFood; steps += 1) {
                 // Act
                 sut.Run(1);
@@ -66,7 +66,7 @@ namespace WormsTest.Simulation {
                 Worm.INITIAL_ENERGY
                 - Worm.ENERGY_LOSS_PER_STEP * steps
                 + Worm.ENERGY_PER_FOOD;
-            
+
             worm.Energy.Should().Be(expectedEnergy);
         }
 
@@ -82,16 +82,16 @@ namespace WormsTest.Simulation {
             );
             s.Run(1);
             var worm = s.TrySpawnWorm(Vector2Int.Zero)!;
-            
+
             // Act
             s.Run(1);
-            
+
             // Assert
             const int expectedEnergy =
-                Worm.INITIAL_ENERGY 
-                - Worm.ENERGY_LOSS_PER_STEP 
+                Worm.INITIAL_ENERGY
+                - Worm.ENERGY_LOSS_PER_STEP
                 + 2 * Worm.ENERGY_PER_FOOD;
-            
+
             worm.Energy.Should().Be(expectedEnergy);
         }
     }

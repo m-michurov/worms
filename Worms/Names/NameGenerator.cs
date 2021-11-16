@@ -22,12 +22,16 @@ namespace Worms.Names {
 
         private readonly Dictionary<string, long> numbers = new();
 
-        private readonly Random random = new();
+        private readonly Random random;
 
-        public NameGenerator() {
+        public NameGenerator() : this(new Random()) { }
+
+        internal NameGenerator(Random random_) {
             foreach (var name in baseNames) {
                 numbers[name] = 1;
             }
+
+            random = random_;
         }
 
         public string NextName => GenerateName();

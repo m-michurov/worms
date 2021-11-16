@@ -3,6 +3,8 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using CommandLine;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Worms.Behaviour;
 using Worms.Database;
 using Worms.Food;
@@ -14,10 +16,11 @@ using Worms.Utility;
 
 namespace Worms {
     internal static class Program {
-        private const int STEPS = 100;
-        private const int DELAY_MS = 150;
+        internal const int SIMULATION_STEPS = 100;
+
         private const string DEFAULT_OUTPUT_FILE = "sim.out";
 
+        // TODO wtf happened to options
         private static void Main(string[] args) =>
             Parser.Default
                 .ParseArguments<Options>(args)
@@ -49,63 +52,74 @@ namespace Worms {
             }
         }
 
-        private static WorldBehaviorContext CreateDbContext(Options options) =>
-            new(
-                new DbContextOptionsBuilder<WorldBehaviorContext>()
+        private static void GenerateBehaviour(Options options) {
+            using var db = new MainContext(
+                new DbContextOptionsBuilder<MainContext>()
                     .EnableSensitiveDataLogging()
                     .UseSqlServer(options.ConnectionString)
                     .Options
             );
-
-        private static void GenerateBehaviour(Options options) {
-            using var db = CreateDbContext(options);
             var repository = new WorldBehaviorsRepository(db);
 
             var worldBehaviour = WorldBehaviourGenerator.GenerateNew(
                 options.GenerateBehavior!,
                 new RandomFoodGenerator(),
-                STEPS
+                SIMULATION_STEPS
             );
 
             repository.Add(worldBehaviour);
         }
 
         private static void SimulateBehaviour(Options options) {
-            using var db = CreateDbContext(options);
-            var repository = new WorldBehaviorsRepository(db);
-
-            var worldBehaviour = repository.GetByName(options.SimulateBehavior!);
-            if (worldBehaviour is null) {
-                Console.Error.WriteLine(
-                    $"World behavior with name \"{options.SimulateBehavior}\" does not exist"
-                );
-                return;
-            }
-
             using var outFile = new FileStream(options.OutputFile, FileMode.Create);
             using var outWriter = new StreamWriter(outFile);
 
-            var snapshotCollector = null as SnapshotCollector;
-            var observer = new TextStateWriter(outWriter) as IStateObserver;
+            var hostBuilder = CreateHostBuilder(
+                outWriter,
+                options.SimulateBehavior!,
+                options.ConnectionString
+            );
+            using var host = hostBuilder.Build();
 
-            if (options.Visualize) {
-                snapshotCollector = new SnapshotCollector();
-                observer = new MultiObserver(observer, snapshotCollector);
-            }
-
-            var s = new Simulation(
-                new NameGenerator(),
-                new ListFoodGenerator(worldBehaviour.ToFoodPositions()),
-                new HedonisticBehaviour(),
-                observer
-            ).Chain(it => it.TrySpawnWorm(Vector2Int.Zero));
-            s.Run(STEPS);
-
-            snapshotCollector?.Show(TimeSpan.FromMilliseconds(DELAY_MS));
+            host.Run();
         }
 
-        // ReSharper disable once ClassNeverInstantiated.Local
-        private sealed class Options {
+        private static IHostBuilder CreateHostBuilder(
+            TextWriter outputWriter,
+            string worldBehaviorName,
+            string connectionString
+        ) =>
+            Host
+                .CreateDefaultBuilder()
+                .ConfigureServices(
+                    (
+                        _,
+                        services
+                    ) => {
+                        services.AddHostedService<SimulationService>();
+
+                        services.AddDbContext<MainContext>(
+                            options => options.UseSqlServer(connectionString)
+                        );
+
+                        services.AddSingleton<IWorldBehaviorsRepository, WorldBehaviorsRepository>();
+
+                        services.AddTransient<INameGenerator, NameGenerator>();
+                        services.AddTransient<IFoodGenerator, LazyDbWorldBehaviorLoader>(
+                            provider => new LazyDbWorldBehaviorLoader(
+                                provider.GetRequiredService<IWorldBehaviorsRepository>(),
+                                worldBehaviorName
+                            )
+                        );
+                        services.AddTransient<IBehaviour, HedonisticBehaviour>();
+
+                        services.AddSingleton<IStateObserver, TextStateWriter>(_ => new TextStateWriter(outputWriter));
+                    }
+                );
+
+        // ReSharper disable once ClassNeverInstantiated.Global
+        // ReSharper disable once MemberCanBePrivate.Global
+        public sealed class Options {
             [Value(
                 0,
                 MetaName = nameof(OutputFile),
@@ -117,20 +131,13 @@ namespace Worms {
             public string OutputFile { get; set; } = DEFAULT_OUTPUT_FILE;
 
             [Option(
-                Default = false,
-                HelpText = "Visualize simulation in CLI."
-            )]
-            // ReSharper disable once UnusedAutoPropertyAccessor.Local
-            public bool Visualize { get; set; }
-
-            [Option(
                 "simulate",
                 Required = false,
                 Default = null,
                 HelpText = "Name of the world behaviour to simulate. Cannot be used with \"--generate-new\"."
             )]
             // ReSharper disable once UnusedAutoPropertyAccessor.Local
-            public string? SimulateBehavior { get; set; } = null;
+            public string? SimulateBehavior { get; } = null;
 
             [Option(
                 "generate-new",
@@ -141,7 +148,7 @@ namespace Worms {
                            "Cannot be used with \"--simulate\"."
             )]
             // ReSharper disable once UnusedAutoPropertyAccessor.Local
-            public string? GenerateBehavior { get; set; } = null;
+            public string? GenerateBehavior { get; } = null;
 
             [Option(
                 "connection-string",
@@ -149,7 +156,7 @@ namespace Worms {
                 HelpText = "Connection string used to connect to the database."
             )]
             // ReSharper disable once UnusedAutoPropertyAccessor.Local
-            public string ConnectionString { get; set; } = "";
+            public string ConnectionString { get; } = "";
         }
     }
 }

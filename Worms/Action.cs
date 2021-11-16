@@ -14,6 +14,6 @@ namespace Worms {
             internal Reproduce(Direction direction) => Direction = direction;
         }
 
-        internal sealed class Nothing : Action {}
+        internal sealed class Nothing : Action { }
     }
 }

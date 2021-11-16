@@ -1,6 +1,5 @@
 using System;
 using FluentAssertions;
-using Worms.Food;
 using Worms.Utility;
 using WormsTest.TestImplementations;
 using Xunit;

@@ -13,22 +13,22 @@ namespace WormsTest.Behaviour {
         public static readonly List<object[]> Data = new() {
             new object[] {
                 new Worm("", Vector2Int.Zero),
-                new SimulationStub(new []{Vector2Int.UnitX * 2, Vector2Int.UnitX * -3}),
+                new SimulationStub(new[] {Vector2Int.UnitX * 2, Vector2Int.UnitX * -3}),
                 Direction.Right
             },
             new object[] {
                 new Worm("", Vector2Int.Zero),
-                new SimulationStub(new []{Vector2Int.UnitY * 2, Vector2Int.UnitY * -3}),
+                new SimulationStub(new[] {Vector2Int.UnitY * 2, Vector2Int.UnitY * -3}),
                 Direction.Up
             },
             new object[] {
                 new Worm("", Vector2Int.Zero),
-                new SimulationStub(new []{Vector2Int.UnitX * -2, Vector2Int.UnitX * 3}),
+                new SimulationStub(new[] {Vector2Int.UnitX * -2, Vector2Int.UnitX * 3}),
                 Direction.Left
             },
             new object[] {
                 new Worm("", Vector2Int.Zero),
-                new SimulationStub(new []{Vector2Int.UnitY * -2, Vector2Int.UnitY * 3}),
+                new SimulationStub(new[] {Vector2Int.UnitY * -2, Vector2Int.UnitY * 3}),
                 Direction.Down
             }
         };

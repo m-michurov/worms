@@ -35,7 +35,6 @@ namespace WormsTest.Simulation {
                 new[] {
                     "Worms: [A-10 (1, 2)] Food: []",
                     ""
-                    
                 }
             },
             new object[] {
@@ -43,7 +42,7 @@ namespace WormsTest.Simulation {
                     new SimulationStub(
                         new Worm[] {new("A", new Vector2Int(1, 2))},
                         new[] {
-                            Vector2Int.UnitX, 
+                            Vector2Int.UnitX,
                             Vector2Int.UnitY
                         }
                     ),
@@ -51,10 +50,10 @@ namespace WormsTest.Simulation {
                         new Worm[] {
                             new("A", new Vector2Int(7, -3)),
                             new("B", new Vector2Int(3, 5))
-                        }, 
+                        },
                         new[] {
-                            -Vector2Int.UnitX, 
-                            Vector2Int.UnitY, 
+                            -Vector2Int.UnitX,
+                            Vector2Int.UnitY,
                             Vector2Int.UnitY + Vector2Int.UnitX
                         }
                     )
@@ -88,8 +87,8 @@ namespace WormsTest.Simulation {
         }
 
         private sealed class SimulationStub : ISimulationState {
-            private readonly IEnumerable<Worm> worms;
             private readonly IEnumerable<Vector2Int> foods;
+            private readonly IEnumerable<Worm> worms;
 
             internal SimulationStub(
                 IEnumerable<Worm> worms_,

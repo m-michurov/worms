@@ -103,7 +103,7 @@ namespace WormsTest.Simulation {
             var worm = sut.TrySpawnWorm(Vector2Int.Zero)!;
             worm.Eat();
             var initialEnergy = worm.Energy;
-            
+
             // Act
             sut.Run(1);
 
