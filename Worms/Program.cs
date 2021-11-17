@@ -137,7 +137,7 @@ namespace Worms {
                 HelpText = "Name of the world behaviour to simulate. Cannot be used with \"--generate-new\"."
             )]
             // ReSharper disable once UnusedAutoPropertyAccessor.Local
-            public string? SimulateBehavior { get; } = null;
+            public string? SimulateBehavior { get; set; } = null;
 
             [Option(
                 "generate-new",
@@ -148,7 +148,7 @@ namespace Worms {
                            "Cannot be used with \"--simulate\"."
             )]
             // ReSharper disable once UnusedAutoPropertyAccessor.Local
-            public string? GenerateBehavior { get; } = null;
+            public string? GenerateBehavior { get; set; } = null;
 
             [Option(
                 "connection-string",
@@ -156,7 +156,7 @@ namespace Worms {
                 HelpText = "Connection string used to connect to the database."
             )]
             // ReSharper disable once UnusedAutoPropertyAccessor.Local
-            public string ConnectionString { get; } = "";
+            public string ConnectionString { get; set; } = "";
         }
     }
 }
