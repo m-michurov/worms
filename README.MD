@@ -9,12 +9,10 @@ Use 'Build Solution' button in Rider or something
 ## Run
 
 ```bash
-Worms\bin\Release\net5.0\Worms.exe <OutputFile> [--help] [--version]
+Worms\bin\Release\net5.0\Worms.exe <OutputFile> [OPTIONS]
 ```
 
 ```bash
-  --visualize            (Default: false) Visualize simulation in CLI.
-
   --simulate             Name of the world behaviour to simulate. Cannot be used with "--generate-new".
 
   --generate-new         Generate new world behaviour with given name. Simulation does not run with this option. Cannot be used with "--simulate".
