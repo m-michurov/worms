@@ -33,7 +33,7 @@ namespace Worms.Food {
         private void LoadBehavior() {
             var worldBehavior = repository.GetByName(behaviorName);
             if (worldBehavior is null) {
-                throw new ArgumentException($"world behaviour with name \"{behaviorName} does not exist");
+                throw new ArgumentException($"world behaviour with name \"{behaviorName}\" does not exist");
             }
 
             var foodPositions = worldBehavior.ToFoodPositions();
