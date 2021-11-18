@@ -12,17 +12,8 @@ namespace Worms.Database {
         private IEnumerable<WorldBehavior> WorldBehaviors =>
             context.WorldBehaviors!.Include(behaviour => behaviour.FoodPositions);
 
-        public WorldBehavior? GetByName(string name) {
-            var behaviours =
-                from behaviour in WorldBehaviors
-                where name == behaviour.Name
-                select behaviour;
-            try {
-                return behaviours.First();
-            } catch (InvalidOperationException) {
-                return null;
-            }
-        }
+        public WorldBehavior? GetByName(string name) => 
+            WorldBehaviors.FirstOrDefault(it => it.Name == name);
 
         public void Add(WorldBehavior worldBehavior) {
             context.Add(worldBehavior);
