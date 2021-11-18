@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.IO;
 using System.Runtime.CompilerServices;
 using CommandLine;
@@ -19,8 +20,8 @@ namespace Worms {
         internal const int SIMULATION_STEPS = 100;
 
         private const string DEFAULT_OUTPUT_FILE = "sim.out";
+        private const string CONNECTION_STRING_KEY = "WormsDb";
 
-        // TODO wtf happened to options
         private static void Main(string[] args) =>
             Parser.Default
                 .ParseArguments<Options>(args)
@@ -56,7 +57,7 @@ namespace Worms {
             using var db = new MainContext(
                 new DbContextOptionsBuilder<MainContext>()
                     .EnableSensitiveDataLogging()
-                    .UseSqlServer(options.ConnectionString)
+                    .UseSqlServer(ConfigurationManager.ConnectionStrings[CONNECTION_STRING_KEY].ConnectionString)
                     .Options
             );
             var repository = new WorldBehaviorsRepository(db);
@@ -76,8 +77,7 @@ namespace Worms {
 
             var hostBuilder = CreateHostBuilder(
                 outWriter,
-                options.SimulateBehavior!,
-                options.ConnectionString
+                options.SimulateBehavior!
             );
             using var host = hostBuilder.Build();
 
@@ -86,8 +86,7 @@ namespace Worms {
 
         private static IHostBuilder CreateHostBuilder(
             TextWriter outputWriter,
-            string worldBehaviorName,
-            string connectionString
+            string worldBehaviorName
         ) =>
             Host
                 .CreateDefaultBuilder()
@@ -99,7 +98,9 @@ namespace Worms {
                         services.AddHostedService<SimulationService>();
 
                         services.AddDbContext<MainContext>(
-                            options => options.UseSqlServer(connectionString)
+                            options => options.UseSqlServer(
+                                ConfigurationManager.ConnectionStrings[CONNECTION_STRING_KEY].ConnectionString
+                            )
                         );
 
                         services.AddSingleton<IWorldBehaviorsRepository, WorldBehaviorsRepository>();
@@ -149,14 +150,6 @@ namespace Worms {
             )]
             // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public string? GenerateBehavior { get; set; } = null;
-
-            [Option(
-                "connection-string",
-                Required = true,
-                HelpText = "Connection string used to connect to the database."
-            )]
-            // ReSharper disable once UnusedAutoPropertyAccessor.Local
-            public string ConnectionString { get; set; } = "";
         }
     }
 }
