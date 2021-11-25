@@ -7,7 +7,7 @@ namespace Worms.StateObserver {
         public TextStateWriter(TextWriter textWriter_) => textWriter = textWriter_;
 
         public void StateChanged(ISimulationState s) => textWriter.WriteLine(
-            $"Worms: [{string.Join(", ", s.Worms)}] Food: [{string.Join(", ", s.Foods)}]"
+            $"Worms: [{string.Join(", ", s.Worms)}] Food: [{string.Join(", ", s.FoodPositions)}]"
         );
     }
 }

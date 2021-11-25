@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.IO;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using CommandLine;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ using Worms.StateObserver;
 using Worms.Utility;
 
 [assembly: InternalsVisibleTo("WormsTest")]
+[assembly: InternalsVisibleTo("WormsServer")]
 
 namespace Worms {
     internal static class Program {
@@ -47,8 +49,9 @@ namespace Worms {
                 Console.Error.WriteLine(e.Message);
             } catch (Exception e) {
                 Console.Error.WriteLine($"Unhandled exception: {e.Message}");
-                if (e.InnerException is not null) {
+                while (e.InnerException is not null) {
                     Console.Error.WriteLine(e.InnerException.Message);
+                    e = e.InnerException;
                 }
             }
         }
@@ -77,7 +80,8 @@ namespace Worms {
 
             var hostBuilder = CreateHostBuilder(
                 outWriter,
-                options.SimulateBehavior!
+                options.SimulateBehavior!,
+                options.ServerUrl
             );
             using var host = hostBuilder.Build();
 
@@ -86,7 +90,8 @@ namespace Worms {
 
         private static IHostBuilder CreateHostBuilder(
             TextWriter outputWriter,
-            string worldBehaviorName
+            string worldBehaviorName,
+            string serverUrl
         ) =>
             Host
                 .CreateDefaultBuilder()
@@ -103,6 +108,8 @@ namespace Worms {
                             )
                         );
 
+                        services.AddHttpClient();
+
                         services.AddSingleton<IWorldBehaviorsRepository, WorldBehaviorsRepository>();
 
                         services.AddTransient<INameGenerator, NameGenerator>();
@@ -112,7 +119,10 @@ namespace Worms {
                                 worldBehaviorName
                             )
                         );
-                        services.AddTransient<IBehaviour, HedonisticBehaviour>();
+                        services.AddTransient<IBehaviour, RemoteBehavior>(provider => 
+                            new RemoteBehavior(
+                                provider.GetRequiredService<IHttpClientFactory>(), 
+                                serverUrl));
 
                         services.AddSingleton<IStateObserver, TextStateWriter>(_ => new TextStateWriter(outputWriter));
                     }
@@ -139,6 +149,14 @@ namespace Worms {
             )]
             // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public string? SimulateBehavior { get; set; } = null;
+
+            [Option(
+                "server-url",
+                Required = true,
+                HelpText = "URL of a worm behaviour server."
+            )]
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
+            public string ServerUrl { get; set; } = "";
 
             [Option(
                 "generate-new",

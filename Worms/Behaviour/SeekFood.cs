@@ -1,47 +1,58 @@
-using System;
+using System.Collections.Generic;
 using Worms.Utility;
 
 namespace Worms.Behaviour {
     internal sealed class SeekFood : IBehaviour {
-        private readonly Random random = new();
+        internal static Direction FromToDirection(
+            Vector2Int from,
+            Vector2Int to
+        ) {
+            var (fromX, fromY) = from;
+            var (toX, toY) = to;
+
+            if (fromX > toX) {
+                return Direction.Left;
+            }
+
+            if (fromX < toX) {
+                return Direction.Right;
+            }
+
+            return fromY > toY ? Direction.Down : Direction.Up;
+        }
+
+        internal static Vector2Int ClosestFood(
+            IEnumerable<Vector2Int> food,
+            Vector2Int from
+        ) {
+            var closestFood = Vector2Int.Zero;
+            var minDistance = int.MaxValue;
+            
+            foreach (var foodPosition in food) {
+                var distance = Vector2Int.Distance(from, foodPosition);
+                if (distance >= minDistance) {
+                    continue;
+                }
+
+                minDistance = distance;
+                closestFood = foodPosition;
+            }
+
+            return closestFood;
+        }
 
         public Action NextAction(
             ISimulationState simulation,
             Worm worm
         ) {
             if (0 == simulation.FoodPositions.Count) {
-                return new Action.Move(random.NextDirection());
+                return new Action.Move(FromToDirection(worm.Position, Vector2Int.Zero));
             }
 
-            var closest = Vector2Int.Zero;
-            var minDistance = int.MaxValue;
-            foreach (var foodPosition in simulation.FoodPositions) {
-                var distance = Vector2Int.Distance(worm.Position, foodPosition);
-                if (distance >= minDistance) {
-                    continue;
-                }
+            var closestFood = ClosestFood(simulation.FoodPositions, worm.Position);
 
-                minDistance = distance;
-                closest = foodPosition;
-            }
-
-            var (fX, fY) = closest;
-            var (x, y) = worm.Position;
-
-            if (fX > x) {
-                return new Action.Move(Direction.Right);
-            }
-
-            if (fX < x) {
-                return new Action.Move(Direction.Left);
-            }
-
-            if (fY > y) {
-                return new Action.Move(Direction.Up);
-            }
-
-            if (fY < y) {
-                return new Action.Move(Direction.Down);
+            if (closestFood != worm.Position) {
+                return new Action.Move(FromToDirection(worm.Position, closestFood));
             }
 
             return new Action.Nothing();

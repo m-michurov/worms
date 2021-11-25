@@ -70,8 +70,8 @@ namespace WormsTest.Behaviour {
             internal SimulationStub(IEnumerable<Vector2Int> foods_) => foods = foods_;
 
             public ICollection<Vector2Int> FoodPositions => foods.ToList();
-            public IEnumerable<string> Foods => Array.Empty<string>();
-            public IEnumerable<string> Worms => Array.Empty<string>();
+            public IDictionary<Vector2Int, int> Foods => new Dictionary<Vector2Int, int>();
+            public IEnumerable<Worm> Worms => Array.Empty<Worm>();
             public bool IsFood(Vector2Int position) => false;
 
             public bool IsWorm(Vector2Int position) => false;

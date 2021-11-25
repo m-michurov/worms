@@ -7,12 +7,18 @@ namespace Worms {
         internal const int ENERGY_PER_FOOD = 10;
         internal const int REPRODUCTION_ENERGY_COST = 10;
 
-        private readonly string name;
+        internal readonly string Name;
 
         internal Worm(
             string name,
             Vector2Int position
-        ) => (this.name, Position) = (name, position);
+        ) => (Name, Position) = (name, position);
+
+        internal Worm(
+            string name,
+            Vector2Int position,
+            int energy
+        ) => (Name, Position, Energy) = (name, position, energy);
 
         internal Vector2Int Position { get; private set; }
         internal int Energy { get; private set; } = INITIAL_ENERGY;
@@ -32,11 +38,11 @@ namespace Worms {
             return new Worm(name_, Position + direction);
         }
 
-        public override string ToString() => $"{name}-{Energy} {Position}";
+        public override string ToString() => $"{Name}-{Energy} {Position}";
 
         public override bool Equals(object? obj) =>
-            obj is Worm other && other.name == name;
+            obj is Worm other && other.Name == Name;
 
-        public override int GetHashCode() => name.GetHashCode();
+        public override int GetHashCode() => Name.GetHashCode();
     }
 }

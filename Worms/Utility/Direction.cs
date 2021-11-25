@@ -1,3 +1,5 @@
+using System;
+
 namespace Worms.Utility {
     public readonly struct Direction {
         private readonly Vector2Int offset;
@@ -13,6 +15,27 @@ namespace Worms.Utility {
 
         internal static readonly Direction[] AllDirections = {
             Up, Down, Left, Right
+        };
+
+        public override string ToString() {
+            if (Up == offset) {
+                return nameof(Up);
+            }
+            if (Down == offset) {
+                return nameof(Down);
+            }
+            if (Left == offset) {
+                return nameof(Left);
+            }
+            return Right == offset ? nameof(Right) : offset.ToString();
+        }
+
+        internal static Direction FromString(string direction) => direction switch {
+            nameof(Up) => Up,
+            nameof(Down) => Down,
+            nameof(Left) => Left,
+            nameof(Right) => Right,
+            _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
         };
     }
 }

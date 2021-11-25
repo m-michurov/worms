@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using FluentAssertions;
 using Worms;
@@ -87,17 +86,22 @@ namespace WormsTest.Simulation {
         }
 
         private sealed class SimulationStub : ISimulationState {
-            private readonly IEnumerable<Vector2Int> foods;
-            private readonly IEnumerable<Worm> worms;
-
             internal SimulationStub(
                 IEnumerable<Worm> worms_,
                 IEnumerable<Vector2Int> foods_
-            ) => (worms, foods) = (worms_, foods_);
+            ) {
+                Worms = worms_;
+                Foods = new Dictionary<Vector2Int, int>();
+                foreach (var position in foods_) {
+                    Foods[position] = global::Worms.Simulation.FOOD_LIFETIME;
+                }
+            }
 
             public ICollection<Vector2Int> FoodPositions => Array.Empty<Vector2Int>();
-            public IEnumerable<string> Foods => from food in foods select food.ToString();
-            public IEnumerable<string> Worms => from worm in worms select worm.ToString();
+            public IDictionary<Vector2Int, int> Foods { get; }
+
+            public IEnumerable<Worm> Worms { get; }
+
             public bool IsFood(Vector2Int position) => false;
 
             public bool IsWorm(Vector2Int position) => false;

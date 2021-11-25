@@ -29,8 +29,8 @@ namespace Worms {
             (nameGenerator_, foodGenerator_, behaviour_, stateObserver_);
 
         public ICollection<Vector2Int> FoodPositions => foods.Keys;
-        public IEnumerable<string> Foods => from food in foods.Keys select food.ToString();
-        public IEnumerable<string> Worms => from worm in worms select worm.ToString();
+        public IDictionary<Vector2Int, int> Foods => foods;
+        public IEnumerable<Worm> Worms => worms;
 
         public bool IsFood(Vector2Int position) => foods.ContainsKey(position);
         public bool IsWorm(Vector2Int position) => worms.Any(worm => position == worm.Position);
