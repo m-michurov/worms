@@ -1,7 +1,7 @@
 using Worms.Utility;
 
 namespace Worms {
-    internal class Action {
+    public class Action {
         private Action() { }
 
         internal sealed class Move : Action {

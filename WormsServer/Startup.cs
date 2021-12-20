@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Worms.Behaviour;
 
 namespace WormsServer {
     public class Startup {
@@ -22,6 +23,8 @@ namespace WormsServer {
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
+            services.AddTransient<IBehaviour, HedonisticBehaviour>();
+            
             services.AddControllers();
             services.AddSwaggerGen(
                 c => {

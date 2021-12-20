@@ -50,25 +50,25 @@ namespace Worms {
                 throw new ArgumentOutOfRangeException(nameof(steps));
             }
 
-            for (var i = 0; i < steps; i += 1) {
-                Step();
+            for (var step = 1; step <= steps; step += 1) {
+                Step(step);
                 stateObserver.StateChanged(this);
             }
         }
 
-        private void Step() {
+        private void Step(int step) {
             RemoveDecayedFood();
             GenerateFood();
-            UpdateWorms();
+            UpdateWorms(step);
             UpdateFood();
         }
 
-        private void UpdateWorms() {
+        private void UpdateWorms(int step) {
             for (var i = 0; i < worms.Count;) {
                 var worm = worms[i];
 
                 CheckFood(worm);
-                var action = behaviour.NextAction(this, worm);
+                var action = behaviour.NextAction(this, worm, step);
                 if (TryExecuteAction(worm, action)) {
                     CheckFood(worm);
                 }
@@ -98,6 +98,7 @@ namespace Worms {
                 case Action.Reproduce reproduce:
                     var targetPosition = worm.Position + reproduce.Direction;
                     if (IsWorm(targetPosition)
+                        || IsFood(targetPosition)
                         || worm.Energy <= Worm.REPRODUCTION_ENERGY_COST) {
                         return false;
                     }

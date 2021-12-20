@@ -16,6 +16,7 @@ using Worms.Utility;
 
 [assembly: InternalsVisibleTo("WormsTest")]
 [assembly: InternalsVisibleTo("WormsServer")]
+[assembly: InternalsVisibleTo("WormsOptimizer")]
 
 namespace Worms {
     internal static class Program {
@@ -119,10 +120,13 @@ namespace Worms {
                                 worldBehaviorName
                             )
                         );
-                        services.AddTransient<IBehaviour, RemoteBehavior>(provider => 
-                            new RemoteBehavior(
-                                provider.GetRequiredService<IHttpClientFactory>(), 
-                                serverUrl));
+                        services.AddTransient<IBehaviour, RemoteBehavior>(
+                            provider =>
+                                new RemoteBehavior(
+                                    provider.GetRequiredService<IHttpClientFactory>(),
+                                    serverUrl
+                                )
+                        );
 
                         services.AddSingleton<IStateObserver, TextStateWriter>(_ => new TextStateWriter(outputWriter));
                     }

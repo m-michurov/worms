@@ -13,7 +13,7 @@ namespace Worms.Utility {
         public override string ToString() => $"({X}, {Y})";
 
         public override bool Equals(object? obj) =>
-            obj is Vector2Int v && (X, Y) == (v.X, v.Y);
+            obj is Vector2Int v && X == v.X && Y == v.Y;
 
         public override int GetHashCode() => HashCode.Combine(X, Y);
 

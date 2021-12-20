@@ -44,7 +44,7 @@ namespace WormsTest.Behaviour {
             var sut = new SeekFood();
 
             // Act
-            var action = sut.NextAction(simulationState, worm);
+            var action = sut.NextAction(simulationState, worm, 0);
 
             // Assert
             action.Should().Match<Action.Move>(move => (Vector2Int) move.Direction == expectedDirection);
@@ -58,7 +58,7 @@ namespace WormsTest.Behaviour {
             var simulationState = new SimulationStub(new[] {Vector2Int.Zero});
 
             // Act
-            var action = sut.NextAction(simulationState, worm);
+            var action = sut.NextAction(simulationState, worm, 0);
 
             // Assert
             action.Should().BeOfType<Action.Nothing>();

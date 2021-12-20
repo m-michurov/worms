@@ -97,7 +97,7 @@ namespace WormsTest.Simulation {
                 }
             }
 
-            public ICollection<Vector2Int> FoodPositions => Array.Empty<Vector2Int>();
+            public ICollection<Vector2Int> FoodPositions => Foods.Keys;
             public IDictionary<Vector2Int, int> Foods { get; }
 
             public IEnumerable<Worm> Worms { get; }

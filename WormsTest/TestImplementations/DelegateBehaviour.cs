@@ -10,7 +10,8 @@ namespace WormsTest.TestImplementations {
 
         public Action NextAction(
             ISimulationState simulation,
-            Worm worm
+            Worm worm,
+            int _
         ) => f(simulation, worm);
     }
 }

@@ -1,8 +1,9 @@
 namespace Worms.Behaviour {
-    internal interface IBehaviour {
+    public interface IBehaviour {
         Action NextAction(
             ISimulationState simulation,
-            Worm worm
+            Worm worm,
+            int step
         );
     }
 }

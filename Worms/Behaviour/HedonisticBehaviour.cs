@@ -5,9 +5,10 @@ namespace Worms.Behaviour {
 
         public Action NextAction(
             ISimulationState simulation,
-            Worm worm
+            Worm worm,
+            int step
         ) => worm.Energy > Worm.REPRODUCTION_ENERGY_COST * 3 / 2
-            ? reproduce.NextAction(simulation, worm)
-            : seekFood.NextAction(simulation, worm);
+            ? reproduce.NextAction(simulation, worm, step)
+            : seekFood.NextAction(simulation, worm, step);
     }
 }

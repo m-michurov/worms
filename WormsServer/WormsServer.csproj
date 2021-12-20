@@ -12,6 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\WormsOptimizer\WormsOptimizer.csproj" />
         <ProjectReference Include="..\Worms\Worms.csproj" />
     </ItemGroup>
 

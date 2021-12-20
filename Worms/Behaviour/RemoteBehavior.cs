@@ -13,7 +13,11 @@ namespace Worms.Behaviour {
             string url_
             ) => (client, url) = (factory.CreateClient(), url_);
 
-        public Action NextAction(ISimulationState simulation, Worm worm) {
+        public Action NextAction(
+            ISimulationState simulation, 
+            Worm worm,
+            int _
+            ) {
             var json = JsonSerializer.Serialize(DTO.World.CreateFrom(simulation));
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = client.PostAsync($"{url}/{worm.Name}/getAction", content).Result;

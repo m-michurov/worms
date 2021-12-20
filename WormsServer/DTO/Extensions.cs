@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Worms;
@@ -6,7 +7,7 @@ using Worms.Utility;
 using Worm = Worms.Worm;
 
 namespace WormsServer.DTO {
-    public static class Extensions {
+    internal static class Extensions {
         private static Vector2Int ToVector2Int(this Position self) => new(self.X, self.Y);
 
         private static Worm ToWorm(this Worms.DTO.Worm self) =>
@@ -15,13 +16,19 @@ namespace WormsServer.DTO {
         private static IEnumerable<Worm> ToWormsEnumerable(this IEnumerable<Worms.DTO.Worm> self) =>
             self.Select(it => it.ToWorm());
 
-        private static Dictionary<Vector2Int, int> ToFoodDictionary(this IEnumerable<Food> self) =>
-            self.ToDictionary(
-                it => it.Position.ToVector2Int(),
-                it => it.ExpiresIn
-            );
+        private static Dictionary<Vector2Int, int> ToFoodDictionary(this IEnumerable<Food> self) {
+            try {
+                return self.ToDictionary(
+                    it => it.Position.ToVector2Int(),
+                    it => it.ExpiresIn
+                );
+            } catch (ArgumentException) {
+                return new Dictionary<Vector2Int, int>();
+            }
+        }
 
-        public static ISimulationState ToSimulationState(this World self) =>
+
+        internal static ISimulationState ToSimulationState(this World self) =>
             new SimulationState {
                 Foods = self.Food.ToFoodDictionary(),
                 Worms = self.Worms.ToWormsEnumerable()
