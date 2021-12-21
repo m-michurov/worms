@@ -13,6 +13,14 @@ RUN dotnet build "Worms.csproj" -c Release -o /app/build
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
+COPY ["WormsOptimizer/WormsOptimizer.csproj", "WormsOptimizer/"]
+RUN dotnet restore "WormsOptimizer/WormsOptimizer.csproj"
+COPY . .
+WORKDIR "/src/WormsOptimizer"
+RUN dotnet build "WormsOptimizer.csproj" -c Release -o /app/build
+
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+WORKDIR /src
 COPY ["WormsServer/WormsServer.csproj", "WormsServer/"]
 RUN dotnet restore "WormsServer/WormsServer.csproj"
 COPY . .
