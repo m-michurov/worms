@@ -8,7 +8,6 @@ using Worms.Names;
 using Worms.StateObserver;
 using Worms.Utility;
 using static Worms.Program;
-using static Worms.Worm;
 
 namespace WormsOptimizer {
     internal static class Program {
@@ -16,13 +15,13 @@ namespace WormsOptimizer {
 
         private static void Main() {
             var (bestParams, bestScore) = GridSearch(
-                new[] {40},
-                new[] {21},
-                new[] {60},
+                new[] {30, 32, 33, 34},
+                new[] {19, 20, 21},
+                new[] {54, 82, 80},
                 new[] {4}
             );
 
-            Console.WriteLine($"Score: {bestScore}");
+            Console.WriteLine($"Score: {bestScore:f3}");
             Console.WriteLine($"Best parameters: {bestParams}");
         }
 
@@ -48,14 +47,14 @@ namespace WormsOptimizer {
                 foreach (var i2 in firstReproductionEnergyThreshold) {
                     foreach (var i3 in secondReproductionEnergyThreshold) {
                         foreach (var i4 in maxWormsCount) {
-                            var (score, _) = CollectStatistics(
+                            var score = CollectStatistics(
                                 () => new BigBrainBehaviour {
                                     FirstReproductionStepThreshold = i1,
                                     FirstReproductionEnergyThreshold = i2,
                                     SecondReproductionEnergyThreshold = i3,
                                     MaxWormsCount = i4
                                 },
-                                RUNS
+                                RUNS * 3
                             );
 
                             combinations += 1;
@@ -77,29 +76,31 @@ namespace WormsOptimizer {
             return (bestParams, bestScore);
         }
 
-        private static (float, float) CollectStatistics(
+        private static float CollectStatistics(
             Func<IBehaviour> behaviour,
             int runs
         ) {
+            var random = new Random(Seed: 596);
             var totalWorms = 0f;
-            var totalCouldReproduce = 0f;
 
             for (var run = 0; run < runs; run += 1) {
-                var simulation = CreateSimulation(behaviour());
+                var simulation = CreateSimulation(behaviour(), random);
                 simulation.Run(SIMULATION_STEPS);
 
                 var worms = simulation.Worms.ToList();
                 totalWorms += worms.Count;
-                totalCouldReproduce += worms.Count(it => it.Energy > REPRODUCTION_ENERGY_COST);
             }
 
-            return (totalWorms / runs, totalCouldReproduce / runs);
+            return totalWorms / runs;
         }
 
-        private static Simulation CreateSimulation(IBehaviour behaviour) =>
+        private static Simulation CreateSimulation(
+            IBehaviour behaviour,
+            Random random
+            ) =>
             new Simulation(
                 new NameGenerator(),
-                new RandomFoodGenerator(),
+                new RandomFoodGenerator(random),
                 behaviour,
                 new DiscardObserver()
             ).Chain(it => it.TrySpawnWorm(Vector2Int.Zero));

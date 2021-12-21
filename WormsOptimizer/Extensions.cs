@@ -6,6 +6,6 @@ namespace WormsOptimizer {
         public static bool IsEmpty(
             this ISimulationState self,
             Vector2Int position
-        ) => !(self.IsFood(position) || self.IsWorm(position));
+        ) => false == (self.IsFood(position) || self.IsWorm(position));
     }
 }

@@ -6,7 +6,11 @@ namespace Worms.Food {
         private const double MEAN = 0;
         internal const double STANDARD_DEVIATION = 5;
 
-        private readonly Random random = new();
+        private readonly Random random;
+        
+        public RandomFoodGenerator(Random random_) => random = random_;
+        
+        public RandomFoodGenerator() : this(new Random()) {}
 
         private int NextNormal => random.NextNormal(MEAN, STANDARD_DEVIATION);
 
