@@ -9,7 +9,18 @@ namespace WormsServer.Controllers {
     [ApiController]
     public sealed class WormActionController : ControllerBase {
         private readonly BehaviourWrapper behaviours;
+
         public WormActionController(BehaviourWrapper behaviours_) => behaviours = behaviours_;
+
+        [HttpGet]
+        [Route("/")]
+        public JsonResult GetIndex() =>
+            new(
+                new {
+                    Author = "Mikhail Michurov, 18201",
+                    Question =
+                        "In this world, is the destiny of mankind controlled by some transcendental entity or law? Is it like the hand of God hovering above? At least, it is true that man has no control, even over his own will."
+                });
 
         [HttpPost]
         [HttpGet]
@@ -20,7 +31,7 @@ namespace WormsServer.Controllers {
         ) {
             var step = int.Parse(Request.Query["step"]);
             var run = int.Parse(Request.Query["run"]);
-            
+
             var simulation = world.ToSimulationState();
             var nextAction = behaviours[run].NextAction(
                 simulation,
