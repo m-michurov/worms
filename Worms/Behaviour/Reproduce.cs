@@ -1,4 +1,4 @@
-using System;
+using Worms.Utility;
 
 namespace Worms.Behaviour {
     internal sealed class Reproduce : IBehaviour {
@@ -6,11 +6,9 @@ namespace Worms.Behaviour {
             ISimulationState simulation,
             Worm worm,
             int _
-        ) => new Action.Reproduce(
-            SeekFood.FromToDirection(
-                worm.Position,
-                SeekFood.ClosestFood(simulation.FoodPositions, worm.Position)
-            )
-        );
+        ) {
+            var (closestFood, _) = simulation.FoodPositions.ClosestTo(worm.Position);
+            return new Action.Reproduce(worm.Position.DirectionTowards(closestFood ?? Vector2Int.Zero));
+        }
     }
 }

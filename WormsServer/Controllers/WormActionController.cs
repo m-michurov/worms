@@ -27,11 +27,10 @@ namespace WormsServer.Controllers {
         [Route("/{name}/getAction")]
         public JsonResult GetAction(
             string name,
-            [FromBody] World world
+            [FromBody] World world,
+            [FromQuery] int run = 0,
+            [FromQuery] int step = 1
         ) {
-            var step = int.Parse(Request.Query["step"]);
-            var run = int.Parse(Request.Query["run"]);
-
             var simulation = world.ToSimulationState();
             var nextAction = behaviours[run].NextAction(
                 simulation,

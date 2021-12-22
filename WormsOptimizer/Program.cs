@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Worms;
 using Worms.Behaviour;
@@ -14,76 +13,116 @@ namespace WormsOptimizer {
         private const int RUNS = 100;
 
         private static void Main() {
-            var (bestParams, bestScore) = GridSearch(
-                new[] {30, 32, 33, 34},
-                new[] {19, 20, 21},
-                new[] {54, 82, 80},
-                new[] {4}
+            GridSearch(
+                new[] {40, 20, 50},
+                new[] {0, 1, 2}
             );
-
-            Console.WriteLine($"Score: {bestScore:f3}");
-            Console.WriteLine($"Best parameters: {bestParams}");
+            GridSearch(
+                new[] {40, 20, 50},
+                new[] {0, 2, 1}
+            );
+            GridSearch(
+                new[] {40, 20, 50},
+                new[] {1, 0, 2}
+            );
+            GridSearch(
+                new[] {40, 20, 50},
+                new[] {1, 2, 0}
+            );
+            GridSearch(
+                new[] {40, 20, 50},
+                new[] {2, 0, 1}
+            );
+            GridSearch(
+                new[] {40, 20, 50},
+                new[] {2, 1, 0}
+            );
         }
 
-        private static ((int, int, int, int), float) GridSearch(
-            // ReSharper disable once ParameterTypeCanBeEnumerable.Local
-            IReadOnlyCollection<int> firstReproductionStepThreshold,
-            IReadOnlyCollection<int> firstReproductionEnergyThreshold,
-            IReadOnlyCollection<int> secondReproductionEnergyThreshold,
-            IReadOnlyCollection<int> maxWormsCount
+        private static void GridSearch(
+            int[] initialValues,
+            int[] indicesOrder,
+            float initialDelta = 20f
         ) {
+            // Console.WriteLine($"Indexing order: {string.Join(", ", indicesOrder)}");
             var bestScore = 0.0f;
-            var bestParams = (0, 0, 0, 0);
+            var bestParams = new int[initialValues.Length];
+            var parameters = new int[initialValues.Length];
 
-            var totalCombinations = firstReproductionStepThreshold.Count
-                                    * firstReproductionEnergyThreshold.Count
-                                    * secondReproductionEnergyThreshold.Count
-                                    * maxWormsCount.Count;
-            var combinations = 0;
+            Array.Copy(initialValues, parameters, initialValues.Length);
 
-            Console.WriteLine($"Total: {totalCombinations}");
+            foreach (var parameterIndex in indicesOrder) {
+                parameters[parameterIndex] = initialValues[parameterIndex];
 
-            foreach (var i1 in firstReproductionStepThreshold) {
-                foreach (var i2 in firstReproductionEnergyThreshold) {
-                    foreach (var i3 in secondReproductionEnergyThreshold) {
-                        foreach (var i4 in maxWormsCount) {
-                            var score = CollectStatistics(
-                                () => new BigBrainBehaviour {
-                                    FirstReproductionStepThreshold = i1,
-                                    FirstReproductionEnergyThreshold = i2,
-                                    SecondReproductionEnergyThreshold = i3,
-                                    MaxWormsCount = i4
-                                },
-                                RUNS * 3
-                            );
+                var score = Score(
+                    () => new BigBrainBehaviour(parameters),
+                    RUNS * 3
+                );
 
-                            combinations += 1;
-                            Console.Write($"\r{combinations}/{totalCombinations} Best score: {bestScore:f3}");
+                var delta = initialDelta * 2;
 
-                            if (score <= bestScore) {
-                                continue;
-                            }
+                while (delta > 1f) {
+                    var initialValue = parameters[parameterIndex];
 
-                            bestScore = score;
-                            bestParams = (i1, i2, i3, i4);
-                        }
+                    parameters[parameterIndex] = initialValue + (int) delta;
+                    var scoreMore = Score(() => new BigBrainBehaviour(parameters));
+
+                    Console.Write(
+                        $"\r[{parameterIndex}] Value: {parameters[parameterIndex]} " +
+                        $"(Best: {initialValue}) Score: {scoreMore:f2} (Best: {score:f2})" +
+                        "                                                              "
+                    );
+
+                    if (scoreMore > score) {
+                        score = scoreMore;
+                        continue;
                     }
+
+                    parameters[parameterIndex] = initialValue - (int) delta;
+                    var scoreLess = Score(() => new BigBrainBehaviour(parameters));
+
+                    Console.Write(
+                        $"\r[{parameterIndex}] Value: {parameters[parameterIndex]} " +
+                        $"(Best: {initialValue}) Score: {scoreLess:f2} (Best: {score:f2})" +
+                        "                                                              "
+                    );
+
+                    if (scoreLess > score) {
+                        score = scoreLess;
+                        continue;
+                    }
+
+                    delta /= 2;
+                    parameters[parameterIndex] = initialValue;
                 }
+
+                Console.Write(
+                    "\r                                                                   " +
+                    "                                                                   \r"
+                );
+
+                if (score <= bestScore) {
+                    continue;
+                }
+
+                bestScore = score;
+                Array.Copy(parameters, bestParams, parameters.Length);
             }
 
-            Console.WriteLine();
-
-            return (bestParams, bestScore);
+            Console.WriteLine($"Best score: {bestScore:f2}");
+            Console.WriteLine($"Best parameters: {string.Join(", ", bestParams)}\n");
         }
 
-        private static float CollectStatistics(
+        private static float Score(
             Func<IBehaviour> behaviour,
-            int runs
+            int runs = RUNS * 10
         ) {
-            var random = new Random(Seed: 596);
-            var totalWorms = 0f;
+            var random = new Random(Seed: 444);
 
-            for (var run = 0; run < runs; run += 1) {
+            var totalWorms = 0f;
+            for (var run = 0;
+                run < runs;
+                run += 1) {
                 var simulation = CreateSimulation(behaviour(), random);
                 simulation.Run(SIMULATION_STEPS);
 
@@ -97,7 +136,7 @@ namespace WormsOptimizer {
         private static Simulation CreateSimulation(
             IBehaviour behaviour,
             Random random
-            ) =>
+        ) =>
             new Simulation(
                 new NameGenerator(),
                 new RandomFoodGenerator(random),

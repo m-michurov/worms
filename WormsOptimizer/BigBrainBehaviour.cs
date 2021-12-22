@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,34 +6,44 @@ using Worms;
 using Worms.Behaviour;
 using Worms.Utility;
 using static Worms.Program;
+using Action = Worms.Action;
 
 namespace WormsOptimizer {
     public sealed class BigBrainBehaviour : IBehaviour {
         private const int MAX_STEPS = SIMULATION_STEPS;
 
         private int currentStep;
+        private int minReproduceEnergy;
+
         private readonly ConcurrentDictionary<Vector2Int, byte> targets = new();
 
         public int FirstReproductionStepThreshold { get; init; }
-
         public int FirstReproductionEnergyThreshold { get; init; }
-
         public int SecondReproductionEnergyThreshold { get; init; }
 
-        public int MaxWormsCount { get; init; }
+        public int MaxWormsCount { get; init; } = 4;
+
+        public BigBrainBehaviour(IReadOnlyList<int> parameters) {
+            const int parametersCount = 3;
+
+            if (parametersCount != parameters.Count) {
+                throw new ArgumentException("Bad number of parameters");
+            }
+
+            var i = 0;
+            FirstReproductionStepThreshold = parameters[i++];
+            FirstReproductionEnergyThreshold = parameters[i++];
+            SecondReproductionEnergyThreshold = parameters[i];
+        }
+
+        public BigBrainBehaviour() { }
 
         public Action NextAction(
             ISimulationState simulation,
             Worm worm,
             int step
         ) {
-            if (step != currentStep) {
-                targets.Clear();
-            } else {
-                targets.RemoveWhere(it => false == simulation.IsFood(it.Key));
-            }
-
-            currentStep = step;
+            Update(step);
 
             var stepsLeft = MAX_STEPS - step;
             var maxPossibleReproductions = worm.Energy / Worm.REPRODUCTION_ENERGY_COST;
@@ -45,20 +56,41 @@ namespace WormsOptimizer {
                 return GoToClosestFood(simulation, worm);
             }
 
-            if (step < FirstReproductionStepThreshold) {
-                if (worm.Energy >= FirstReproductionEnergyThreshold) {
-                    return Reproduce(simulation, worm);
-                }
-            } else {
-                if (worm.Energy >= SecondReproductionEnergyThreshold) {
-                    return Reproduce(simulation, worm);
-                }
-            }
-
-            return GoToClosestFood(simulation, worm);
+            return worm.Energy >= minReproduceEnergy
+                ? Reproduce(simulation, worm)
+                : GoToClosestFood(simulation, worm);
         }
 
-        private static IEnumerable<Direction> EmptyAdjacentPositions(
+        private void Update(int step) {
+            if (step != currentStep) {
+                targets.Clear();
+            }
+
+            currentStep = step;
+
+            minReproduceEnergy =
+                currentStep < FirstReproductionStepThreshold
+                    ? FirstReproductionEnergyThreshold
+                    : SecondReproductionEnergyThreshold;
+        }
+
+        private IEnumerable<Vector2Int> AvailableFoodPositions(
+            ISimulationState simulation,
+            Vector2Int from,
+            int maxDistance
+        ) =>
+            simulation.FoodPositions.Where(
+                it => {
+                    if (targets.ContainsKey(it)) {
+                        return false;
+                    }
+
+                    var distance = Vector2Int.Distance(from, it);
+                    return maxDistance >= distance && simulation.Foods[it] >= distance;
+                }
+            );
+
+        private static IEnumerable<Direction> AvailableReproductionDirections(
             ISimulationState simulation,
             Worm worm
         ) => Direction.AllDirections.Where(it => simulation.IsEmpty(worm.Position + it));
@@ -67,27 +99,19 @@ namespace WormsOptimizer {
             ISimulationState simulation,
             Worm worm
         ) {
-            var availableFood =
-                simulation.FoodPositions.Where(it => false == targets.ContainsKey(it));
+            var (maybeClosestFood, _) =
+                AvailableFoodPositions(
+                    simulation,
+                    worm.Position,
+                    worm.Energy
+                ).ClosestTo(worm.Position);
 
-            var result = SeekFood.FindFood(
-                availableFood.Where(
-                    it => {
-                        var distance = Vector2Int.Distance(worm.Position, it);
-                        return worm.Energy >= distance && simulation.Foods[it] >= distance;
-                    }
-                ),
-                simulation,
-                worm.Position
-            );
+            var closestFood = maybeClosestFood ?? Vector2Int.Zero;
+            var direction = worm.Position.DirectionTowards(closestFood, simulation.IsWorm);
 
-            if (result is null) {
-                return new Action.Move(SeekFood.FromToDirection(worm.Position, Vector2Int.Zero, simulation.IsWorm));
+            if (maybeClosestFood is not null) {
+                targets[closestFood] = 0x00;
             }
-
-            var (foodPosition, direction) = result.Value;
-
-            targets[foodPosition] = 0x00;
 
             return new Action.Move(direction);
         }
@@ -96,25 +120,19 @@ namespace WormsOptimizer {
             ISimulationState simulation,
             Worm worm
         ) {
-            var directions = EmptyAdjacentPositions(simulation, worm);
             var bestDirection = Direction.Down;
             var minDistance = int.MaxValue;
-            
-            var availableFood =
-                simulation.FoodPositions.Where(it => false == targets.ContainsKey(it)).ToList();
-            
-            foreach (var direction in directions) {
+
+            foreach (var direction in AvailableReproductionDirections(simulation, worm)) {
                 var position = worm.Position + direction;
-                var food = SeekFood.ClosestFood(
-                    availableFood.Where(
-                        it => {
-                            var d = Vector2Int.Distance(position, it);
-                            return Worm.INITIAL_ENERGY >= d && simulation.Foods[it] >= d;
-                        }
-                    ),
-                    position
-                );
-                var distance = Vector2Int.Distance(position, food);
+
+                var (_, distance) =
+                    AvailableFoodPositions(
+                        simulation,
+                        position,
+                        Worm.INITIAL_ENERGY
+                    ).ClosestTo(position);
+
                 if (distance < minDistance) {
                     (bestDirection, minDistance) = (direction, distance);
                 }

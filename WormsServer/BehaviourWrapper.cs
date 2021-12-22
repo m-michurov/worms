@@ -3,6 +3,8 @@ using System.Linq;
 using Worms.Behaviour;
 using WormsOptimizer;
 
+// 89 16 60 -> 25.76
+
 namespace WormsServer {
     public sealed class BehaviourWrapper {
         private const int MAX_BEHAVIOURS = 50;
@@ -21,9 +23,9 @@ namespace WormsServer {
                         run,
                         _ => (
                             new BigBrainBehaviour {
-                                FirstReproductionStepThreshold = 32,
-                                FirstReproductionEnergyThreshold = 21,
-                                SecondReproductionEnergyThreshold = 54,
+                                FirstReproductionStepThreshold = 40,
+                                FirstReproductionEnergyThreshold = 20,
+                                SecondReproductionEnergyThreshold = 50,
                                 MaxWormsCount = 4
                             },
                             ticks
